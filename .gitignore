@@ -48,3 +48,8 @@ build/CMakeFiles/calm.dir/src/reggae.cxx.o
 build/CMakeFiles/calm.dir/src/specrel.cxx.o
 build/share/particles.data
 .vscode/settings.json
+calm.log
+.vscode/launch.json
+build/DistributionDrawer.cxx
+build/run_CALM.sh
+build/run_tpi.sh
