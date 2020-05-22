@@ -53,3 +53,12 @@ calm.log
 build/DistributionDrawer.cxx
 build/run_CALM.sh
 build/run_tpi.sh
+build/events_EventType3/calm0dir/event000.root
+build/events_EventType3/calm0dir/event001.root
+build/events_EventType3/calm1dir/event000.root
+build/events_EventType3/calm1dir/event001.root
+build/events_EventType3/calm2dir/event000.root
+build/events_EventType3/calm2dir/event001.root
+build/events_EventType3/calm3dir/event000.root
+build/events_EventType3/calm3dir/event001.root
+build/tpiOutput/EventType3/PipPip.root

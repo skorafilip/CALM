@@ -126,7 +126,12 @@ bool CALM::TrySetEventDecay(int Nsum, double* masses, TGenPhaseSpace& event, dou
 	return isSuccess;
 }
 
-bool CALM::TrySetEventDecay_MINIJETS(int Nsum, double* masses0, double* masses1, TGenPhaseSpace& event0, TGenPhaseSpace& event1, double& TotEnergy, double* divideEn, vector<double>* masses) {
+bool CALM::TrySetEventDecay_MINIJETS(int Nsum, vector<double>* masses, TGenPhaseSpace& event0, TGenPhaseSpace& event1, double& TotEnergy, double* divideEn) {
+   double masses0 [masses[0].size()];
+   double masses1 [masses[1].size()];
+   for(int j=0;j<masses[0].size();++j){ masses0[j] = masses[0][j];}
+   for(int j=0;j<masses[1].size();++j){ masses1[j] = masses[1][j];}
+
 	bool isSuccess = false;
 	int control = 0;
 	TLorentzVector en;
@@ -266,6 +271,48 @@ void CALM::SaveAllParticles_GLOBAL_REGGAE(int Nsum, vector4 *avec, vector<vector
 	}
 }
 
+void CALM::SaveAllParticles_MINIJETS_REGGAE(vector<double>* masses, vector<string>* names, vector4* avec0, vector4* avec1, double TotEnergy, vector<vector<double>> XYZrand, ParticleDB* aPartDB, list<Particle>* aParticles) {
+
+	double phi, eta, theta, p1[3], p2[3], Ejet1, Ejet2;
+	phi = mRandom->Uniform(0, 2 * TMath::Pi());
+	eta = mRandom->Uniform(-2., 2.);
+	theta = 2 * TMath::ATan(TMath::Exp(-eta));
+
+   p1[0] = TotEnergy/4./masses[0].size() * TMath::Sin(theta) * TMath::Sin(phi) ;
+   p1[1] = TotEnergy/4./masses[0].size() * TMath::Sin(theta) * TMath::Cos(phi) ;
+   p1[2] = TotEnergy/4./masses[0].size() * TMath::Cos(theta) ;
+   Ejet1 = TotEnergy/4./masses[0].size();
+   p2[0] = TotEnergy/4./masses[1].size() * TMath::Sin(theta) * TMath::Sin(phi) ;
+   p2[1] = TotEnergy/4./masses[1].size() * TMath::Sin(theta) * TMath::Cos(phi) ;
+   p2[2] = TotEnergy/4./masses[1].size() * TMath::Cos(theta) ;
+   Ejet2 = TotEnergy/4./masses[1].size();
+
+	Particle* tParticle;
+   TLorentzVector* tmp =new TLorentzVector();;
+      for(int i=0;i<masses[0].size();i++)
+      {
+         tmp->SetPxPyPzE(avec0[i][1],avec0[i][2],avec0[i][3],avec0[i][0]); //sat values from Reggae
+         tParticle = new Particle(aPartDB->GetParticleType( names[0][i] ));
+         tParticle->SetParticlePX(tmp->E()+Ejet1 ,tmp->Px()+p1[0],tmp->Py()+p1[1], tmp->Pz()+p1[2],
+                                  0,XYZrand[i][0],XYZrand[i][1],XYZrand[i][2],
+                                  1, 0);
+         aParticles->push_back(*tParticle);
+         delete tParticle;
+      }
+      for(int i=0;i<masses[1].size();i++)
+      {
+         tmp->SetPxPyPzE(avec1[i][1],avec1[i][2],avec1[i][3],avec1[i][0]); //sat values from Reggae
+         tParticle = new Particle(aPartDB->GetParticleType( names[1][i] ));
+         tParticle->SetParticlePX(tmp->E()+Ejet2 ,tmp->Px()-p2[0],tmp->Py()-p2[1], tmp->Pz()-p2[2],
+                                  0,XYZrand[masses[0].size()+i][0],XYZrand[masses[0].size()+i][1],XYZrand[masses[0].size()+i][2],
+                                  1, 0);
+         aParticles->push_back(*tParticle);
+         delete tParticle;
+      }
+
+      delete tmp;
+}
+
 bool CALM::DOREGGAE(int Nsum, double* masses, vector4 en, vector4* avec) {
 	long int seed = time(NULL);
 
@@ -291,6 +338,48 @@ bool CALM::DOREGGAE(int Nsum, double* masses, vector4 en, vector4* avec) {
 	return checkE;
 }
 
+bool CALM::DOREGGAE_Minijets(int Nsum, vector<double>* masses, vector4 en, vector4* avec0, vector4* avec1) {
+   double masses0 [masses[0].size()];
+   double masses1 [masses[1].size()];
+   for(int j=0;j<masses[0].size();++j){ masses0[j] = masses[0][j];}
+   for(int j=0;j<masses[1].size();++j){ masses1[j] = masses[1][j];}
+   
+	long int seed = time(NULL);
+
+	bool checkE = 1;//isSuccess
+	int control = 0;
+	do {
+      	checkE = 1;
+         //first jet
+         Mconserv (en,masses[0].size(),masses0,avec0,&seed); //genbod algoritmus
+         collision(masses[0].size(),avec0,&seed);	//collision algoritmus
+         //second jet
+         Mconserv (en,masses[1].size(),masses1,avec1,&seed); //genbod algoritmus
+         collision(masses[1].size(),avec1,&seed);	//collision algoritmus
+         //*****************************************
+         //check particles for negative energy: in such case re-generate the event
+
+		//*****************************************
+		//check particles for negative energy: in such case re-generate the event
+
+         for(int i=0;i<masses[0].size();i++){
+            if(avec0[i][0]<=0 || avec0[i][1]!=avec0[i][1] ||avec0[i][2]!=avec0[i][2] ||avec0[i][3]!=avec0[i][3]) {
+
+               checkE = 0; //cout<<"Negative energy!"<<endl;
+            }
+         }
+         for(int i=0;i<masses[1].size();i++){
+            if(avec1[i][0]<=0 || avec1[i][1]!=avec1[i][1] ||avec1[i][2]!=avec1[i][2] ||avec1[i][3]!=avec1[i][3]) {
+
+               checkE = 0; //cout<<"Negative energy!"<<endl;
+            }
+         }
+
+		control++;
+	} while (!(checkE || control >= 10));
+
+	return checkE;
+}
 
 void CALM::SeparateJets(int Nsum, vector<double>* masses, vector<string>* names, ParticleDB* aPartDB) {
 	do
@@ -496,9 +585,9 @@ int CALM::GenerateParticles(ParticleDB* aPartDB, int aMultBinMin, int aMultBinMa
    case MINIJETS_GLOBAL:
    {
       TGenPhaseSpace event1, event0;
-      Particle* tParticle;
+      //Particle* tParticle;
       //double weight0, weight1;
-      int it=0;
+      //int it=0;
 	  int amountOfJets = 2;
 	  vector<double>* masses = new vector<double>[amountOfJets];
 	  vector<string>* names = new vector<string>[amountOfJets];
@@ -536,14 +625,14 @@ int CALM::GenerateParticles(ParticleDB* aPartDB, int aMultBinMin, int aMultBinMa
 
 
       //FILIPS: przepisanie do prostrzych tablic
-      double* masses0 = new double[masses[0].size()];
+      /*double* masses0 = new double[masses[0].size()];
       double* masses1 = new double[masses[1].size()];
       for(int j=0;j<masses[0].size();++j) {masses0[j] = masses[0][j];}
-      for(int j=0;j<masses[1].size();++j) {masses1[j] = masses[1][j];}
+      for(int j=0;j<masses[1].size();++j) {masses1[j] = masses[1][j];}*/
 
-	  double* divideEn = new double[2]{ 1,1 }; // 0: energy of particles, 1: boostenergy
+	   double* divideEn = new double[2]{ 1,1 }; // 0: energy of particles, 1: boostenergy
 
-      TLorentzVector* tmp;
+      //TLorentzVector* tmp;
       /*TLorentzVector en;
       double divideEn[] = {1,1}; // 0: energy of particles, 1: boostenergy
       do
@@ -562,7 +651,7 @@ int CALM::GenerateParticles(ParticleDB* aPartDB, int aMultBinMin, int aMultBinMa
          mParticlesThisEvent.clear();
          return 99;
       }*/
-	  if (!TrySetEventDecay_MINIJETS(Nsum, masses0, masses1, event0, event1, TotEnergy, divideEn, masses)) {
+	  if (!TrySetEventDecay_MINIJETS(Nsum, masses, event0, event1, TotEnergy, divideEn)) {
 		  mParticlesThisEvent.clear();
 		  return 99;
 	  }
@@ -631,8 +720,6 @@ int CALM::GenerateParticles(ParticleDB* aPartDB, int aMultBinMin, int aMultBinMa
          delete tParticle;
       }*/
 	  SaveAllParticles_MINIJETS(masses, names, weight0, weight1, TotEnergy, divideEn, XYZrand, event0, event1, aPartDB, aParticles, aEventType);
-	  delete masses0;
-	  delete masses1;
 	  delete[] masses;
 	  delete[] names;
 	  delete[] divideEn;
@@ -644,7 +731,7 @@ int CALM::GenerateParticles(ParticleDB* aPartDB, int aMultBinMin, int aMultBinMa
    case MINIJETS_LOCAL:
    {
       TGenPhaseSpace event1, event0;
-      Particle* tParticle;
+      //Particle* tParticle;
       //double weight0, weight1;
       //int it=0;
 	  int amountOfJets = 2;
@@ -719,15 +806,15 @@ int CALM::GenerateParticles(ParticleDB* aPartDB, int aMultBinMin, int aMultBinMa
 	  //FILIPS: przepisanie do prostrzych tablic
       //double masses0 [masses[0].size()];
       //double masses1 [masses[1].size()];
-	  double* masses0 = new double[masses[0].size()];
+	  /*double* masses0 = new double[masses[0].size()];
 	  double* masses1 = new double[masses[1].size()];
       for(int j=0;j<masses[0].size();++j) {masses0[j] = masses[0][j];}
-      for(int j=0;j<masses[1].size();++j) {masses1[j] = masses[1][j];}
+      for(int j=0;j<masses[1].size();++j) {masses1[j] = masses[1][j];}*/
 
       TLorentzVector* tmp;
       TLorentzVector en;
       //double divideEn[] = {1,1}; // 0: energy of particles, 1: boostenergy
-	  double* divideEn = new double[2]{ 1,1 }; // 0: energy of particles, 1: boostenergy
+	   double* divideEn = new double[2]{ 1,1 }; // 0: energy of particles, 1: boostenergy
 
       /*do
       {
@@ -742,7 +829,7 @@ int CALM::GenerateParticles(ParticleDB* aPartDB, int aMultBinMin, int aMultBinMa
          mParticlesThisEvent.clear();
          return 99;
       }*/
-	  if (!TrySetEventDecay_MINIJETS(Nsum, masses0, masses1, event0, event1, TotEnergy, divideEn, masses)) {
+	  if (!TrySetEventDecay_MINIJETS(Nsum, masses, event0, event1, TotEnergy, divideEn)) {
 		  mParticlesThisEvent.clear();
 		  return 99;
 	  }
@@ -806,8 +893,6 @@ int CALM::GenerateParticles(ParticleDB* aPartDB, int aMultBinMin, int aMultBinMa
          delete tParticle;
       }*/
 	  SaveAllParticles_MINIJETS(masses, names, weight0, weight1, TotEnergy, divideEn, XYZrand, event0, event1, aPartDB, aParticles, aEventType);
-	  delete masses0;
-	  delete masses1;
 	  delete[] masses;
 	  delete[] names;
 	  delete[] divideEn;
@@ -895,13 +980,14 @@ int CALM::GenerateParticles(ParticleDB* aPartDB, int aMultBinMin, int aMultBinMa
    }
    case MINIJETS_GLOBAL_REGGAE:
    {
-      Particle* tParticle;
-      int it=0;
-      vector<double> masses[2];
-      vector<string> names[2];
+      //Particle* tParticle;
+      //int it=0;
+	   int amountOfJets = 2;
+	   vector<double>* masses = new vector<double>[amountOfJets];
+	   vector<string>* names = new vector<string>[amountOfJets];
 
       //********* divide particles into two lists ***************
-      do
+      /*do
       {
          if(masses[0].size() > 0 || masses[1].size()>0 )
          {
@@ -923,7 +1009,9 @@ int CALM::GenerateParticles(ParticleDB* aPartDB, int aMultBinMin, int aMultBinMa
                names[0].push_back( mParticlesThisEvent[i].c_str() );
             }
          }
-      }while( masses[0].size() < 4 || masses[1].size() < 4);
+      }while( masses[0].size() < 4 || masses[1].size() < 4);*/
+      SeparateJets(Nsum,masses, names, aPartDB);
+      /*
       double masses0 [masses[0].size()];
       double masses1 [masses[1].size()];
       for(int j=0;j<masses[0].size();++j){ masses0[j] = masses[0][j];}
@@ -969,7 +1057,22 @@ int CALM::GenerateParticles(ParticleDB* aPartDB, int aMultBinMin, int aMultBinMa
       }while(!checkE && control<10);
       if (control>=10)
          return 99;
+      */
+      vector4 en;
+      vector4 *avec0 = new vector4[masses[0].size()];
+      vector4 *avec1 = new vector4[masses[1].size()];
+      // get total momentum
+      TotEnergy = Etot; //include mass of the particles in the range
 
+      //set starting values to distribute
+      en[0]=TotEnergy/4.; en[1]=0.0;en[2]=0.0;en[3]=0.0; //0 - energy, 1- px, 2-py, 3-px
+      if(!DOREGGAE_Minijets(Nsum, masses, en, avec0, avec1)){
+         return 99;
+      }
+
+
+
+      /*
       TLorentzVector* tmp =new TLorentzVector();;
 
       // generate boost momentum
@@ -1007,9 +1110,14 @@ int CALM::GenerateParticles(ParticleDB* aPartDB, int aMultBinMin, int aMultBinMa
                                   1, 0);
          aParticles->push_back(*tParticle);
          delete tParticle;
-      }
+      }*/
+      SaveAllParticles_MINIJETS_REGGAE(masses, names, avec0, avec1,  TotEnergy, XYZrand,  aPartDB,  aParticles);
+
+      delete [] masses;
+      delete [] names;
+      delete [] avec0;
       delete [] avec1;
-      delete tmp;
+      //delete tmp;
       break;
    }
    case MINIJETS_LOCAL_REGGAE:

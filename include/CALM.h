@@ -59,11 +59,13 @@ class CALM {
 	  bool DOREGGAE(int Nsum, double* masses, vector4 en, vector4* avec);
 
 	  void SeparateJets(int Nsum, vector<double>* masses, vector<string>* names, ParticleDB* aPartDB);
-	  bool TrySetEventDecay_MINIJETS(int Nsum, double* masses0, double* masses1, TGenPhaseSpace& event0, TGenPhaseSpace& event1, double& TotEnergy, double* divideEn, vector<double>* masses);
+	  bool TrySetEventDecay_MINIJETS(int Nsum, vector<double>* masses, TGenPhaseSpace& event0, TGenPhaseSpace& event1, double& TotEnergy, double* divideEn);
 	  bool FilterUnlikelyEvents_MINIJETS(TGenPhaseSpace& event0, TGenPhaseSpace& event1, double& weight0, double& weight1);
 	  void SaveAllParticles_MINIJETS(vector<double>* masses, vector<string>* names, double weight0, double weight1, double TotEnergy, double* divideEn, vector<vector<double>> XYZrand, TGenPhaseSpace event0, TGenPhaseSpace event1, ParticleDB* aPartDB, list<Particle>* aParticles, eEventType aEventType);
 	 
 	  bool SeparateJets_LOCAL(int Nsum, vector<double>* masses, vector<string>* names, ParticleDB* aPartDB);
+	  bool DOREGGAE_Minijets(int Nsum, vector<double>* masses, vector4 en, vector4* avec0, vector4* avec1);
+	  void SaveAllParticles_MINIJETS_REGGAE(vector<double>* masses, vector<string>* names, vector4* avec0, vector4* avec1, double TotEnergy, vector<vector<double>> XYZrand, ParticleDB* aPartDB, list<Particle>* aParticles);
 
 
 };
