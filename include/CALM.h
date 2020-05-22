@@ -74,7 +74,7 @@ private:
 	void SaveAllParticles_MINIJETS(vector<double> *masses, vector<string> *names, double weight0, double weight1, double TotEnergy, double *divideEn, vector<vector<double>> XYZrand, TGenPhaseSpace event0, TGenPhaseSpace event1, ParticleDB *aPartDB, list<Particle> *aParticles, eEventType aEventType);
 
 	bool SeparateJets_LOCAL(int Nsum, vector<double> *masses, vector<string> *names, ParticleDB *aPartDB);
-	bool DOREGGAE_Minijets(int Nsum, vector<double> *masses, vector4 en, vector4 *avec0, vector4 *avec1);
+	bool DOREGGAE_MINIJETS(int Nsum, vector<double> *masses, vector4 en, vector4 *avec0, vector4 *avec1);
 	void SaveAllParticles_MINIJETS_REGGAE(vector<double> *masses, vector<string> *names, vector4 *avec0, vector4 *avec1, double TotEnergy, vector<vector<double>> XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles);
 };
 

@@ -316,7 +316,7 @@ void CALM::SaveAllParticles_MINIJETS_REGGAE(vector<double> *masses, vector<strin
 
    Particle *tParticle;
    TLorentzVector *tmp = new TLorentzVector();
-   ;
+   
    for (int i = 0; i < masses[0].size(); i++)
    {
       tmp->SetPxPyPzE(avec0[i][1], avec0[i][2], avec0[i][3], avec0[i][0]); //sat values from Reggae
@@ -370,7 +370,7 @@ bool CALM::DOREGGAE(int Nsum, double *masses, vector4 en, vector4 *avec)
    return checkE;
 }
 
-bool CALM::DOREGGAE_Minijets(int Nsum, vector<double> *masses, vector4 en, vector4 *avec0, vector4 *avec1)
+bool CALM::DOREGGAE_MINIJETS(int Nsum, vector<double> *masses, vector4 en, vector4 *avec0, vector4 *avec1)
 {
    double masses0[masses[0].size()];
    double masses1[masses[1].size()];
@@ -582,7 +582,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
    int Nsum;
    int tmpInt;
    int pythiaMult = 0;
-   ParticleType *tParticleType;
+   //ParticleType *tParticleType;
    //_______distributing the total number of particles for each kind and for the specific particles
    //_______GLOBAL CONSERVATION LAWS - or one minijet for minijets with local conservation
 
@@ -1126,7 +1126,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
       en[1] = 0.0;
       en[2] = 0.0;
       en[3] = 0.0; //0 - energy, 1- px, 2-py, 3-px
-      if (!DOREGGAE_Minijets(Nsum, masses, en, avec0, avec1))
+      if (!DOREGGAE_MINIJETS(Nsum, masses, en, avec0, avec1))
       {
          return 99;
       }
@@ -1181,11 +1181,12 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
    }
    case MINIJETS_LOCAL_REGGAE:
    {
-      Particle *tParticle;
-      int it = 0;
-      vector<double> masses[2];
-      vector<string> names[2];
-      int Qjet[2], Bjet[2], Sjet[2];
+      //Particle *tParticle;
+      //int it = 0;
+      int amountOfJets = 2;
+      vector<double> *masses = new vector<double>[amountOfJets];
+      vector<string> *names = new vector<string>[amountOfJets];
+      /*int Qjet[2], Bjet[2], Sjet[2];
       control = 0;
       do
       {
@@ -1261,8 +1262,26 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
          return 99;
       }
       else
-         control = 0;
-      double masses0[masses[0].size()];
+         control = 0;*/
+      if (!SeparateJets_LOCAL(Nsum, masses, names, aPartDB))
+      {
+         mParticlesThisEvent.clear();
+         return 99;
+      }
+
+      vector4 en;
+      vector4 *avec0 = new vector4[masses[0].size()];
+      vector4 *avec1 = new vector4[masses[1].size()];
+      // get total momentum
+      TotEnergy = Etot; //include mass of the particles in the range
+
+      //set starting values to distribute
+      en[0] = TotEnergy / 4.;
+      en[1] = 0.0;
+      en[2] = 0.0;
+      en[3] = 0.0; //0 - energy, 1- px, 2-py, 3-px
+
+      /*double masses0[masses[0].size()];
       double masses1[masses[1].size()];
       for (int j = 0; j < masses[0].size(); ++j)
       {
@@ -1316,10 +1335,14 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
          control++;
       } while (!checkE && control < 10);
       if (control >= 10)
+         return 99;*/
+      if (!DOREGGAE_MINIJETS(Nsum, masses, en, avec0, avec1))
+      {
          return 99;
+      }
 
       // generate boost momentum
-      double phi, eta, theta, p1[3], p2[3], Ejet1, Ejet2;
+      /*double phi, eta, theta, p1[3], p2[3], Ejet1, Ejet2;
       phi = mRandom->Uniform(0, 2 * TMath::Pi());
       eta = mRandom->Uniform(-2., 2.);
       theta = 2 * TMath::ATan(TMath::Exp(-eta));
@@ -1352,9 +1375,11 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
                                   1, 0);
          aParticles->push_back(*tParticle);
          delete tParticle;
-      }
+      }*/
+      SaveAllParticles_MINIJETS_REGGAE(masses,names,avec0,avec1,TotEnergy,XYZrand,aPartDB,aParticles);
+      delete[] avec0;
       delete[] avec1;
-      delete tmp;
+      //delete tmp;
       break;
    }
    }
