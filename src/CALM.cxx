@@ -465,6 +465,7 @@ void CALM::SeparateJets(int Nsum, vector<double> *masses, vector<string> *names,
       //FILIPS: to chyba sluzy aby podzielic czastki losowo na pol //dokladnie, bo wszystkie cząstki są rozkładane na dwa strumienie,
       for (int i = 0; i < Nsum; ++i)
       {
+         
          //FILIPS: losowane 0 albo 1, 50% szans ze wejdzie w if, 50 % ze w else
          if (mRandom->Integer(2))
          {

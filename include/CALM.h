@@ -58,22 +58,24 @@ private:
 private:
 	int *GetMultiplicitiesOfPartciles(int pythiaMult, int aMultBinMin, int aMultBinMax, int &Nsum);
 	void CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, ParticleDB *aPartDB);
-	//double** GetXYZ(int Nsum);
 	vector<vector<double>> GetXYZ(int Nsum);
 	double GetTotalEnergy(int Nsum);
+
+
 	double *GetMasses(int Nsum, ParticleDB *aPartDB);
 	bool TrySetEventDecay(int Nsum, double *masses, TGenPhaseSpace &event, double &TotEnergy);
 	bool FilterUnlikelyEvents(TGenPhaseSpace &event, double &weight);
 	void SaveAllParticles_GLOBAL(int Nsum, double weight, vector<vector<double>> XYZrand, TGenPhaseSpace event, ParticleDB *aPartDB, list<Particle> *aParticles);
-	void SaveAllParticles_GLOBAL_REGGAE(int Nsum, vector4 *avec, vector<vector<double>> XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles);
-	bool DOREGGAE(int Nsum, double *masses, vector4 en, vector4 *avec);
 
 	void SeparateJets(int Nsum, vector<double> *masses, vector<string> *names, ParticleDB *aPartDB);
+	bool SeparateJets_LOCAL(int Nsum, vector<double> *masses, vector<string> *names, ParticleDB *aPartDB);
 	bool TrySetEventDecay_MINIJETS(int Nsum, vector<double> *masses, TGenPhaseSpace &event0, TGenPhaseSpace &event1, double &TotEnergy, double *divideEn);
 	bool FilterUnlikelyEvents_MINIJETS(TGenPhaseSpace &event0, TGenPhaseSpace &event1, double &weight0, double &weight1);
 	void SaveAllParticles_MINIJETS(vector<double> *masses, vector<string> *names, double weight0, double weight1, double TotEnergy, double *divideEn, vector<vector<double>> XYZrand, TGenPhaseSpace event0, TGenPhaseSpace event1, ParticleDB *aPartDB, list<Particle> *aParticles, eEventType aEventType);
 
-	bool SeparateJets_LOCAL(int Nsum, vector<double> *masses, vector<string> *names, ParticleDB *aPartDB);
+	bool DOREGGAE(int Nsum, double *masses, vector4 en, vector4 *avec);
+	void SaveAllParticles_GLOBAL_REGGAE(int Nsum, vector4 *avec, vector<vector<double>> XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles);
+
 	bool DOREGGAE_MINIJETS(int Nsum, vector<double> *masses, vector4 en, vector4 *avec0, vector4 *avec1);
 	void SaveAllParticles_MINIJETS_REGGAE(vector<double> *masses, vector<string> *names, vector4 *avec0, vector4 *avec1, double TotEnergy, vector<vector<double>> XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles);
 };

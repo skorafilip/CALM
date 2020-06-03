@@ -1,28 +1,49 @@
 #include <iostream>
-#include <TCanvas.h>
-#include <TFile.h>
-#include <TH2D.h>
-#include <TBrowser.h>
+#include "TCanvas.h"
+#include "TFile.h"
+#include "TH2D.h"
 #include <cstring>
-#include <TLatex.h>
+#include "TLatex.h"
+#include "TSystem.h"
+#include <cstdlib>
 
 using namespace std;
 
-
-void DistributionDrawer(int EventType, char* CorrelationType){
+void SimpleDrawer(int EventType, char* CorrelationType){
 	TCanvas* c = new TCanvas("c","c",1600,800);
 
+	//wczytnie pliku
 	TString* filename = new TString();
 	filename->Form("tpiOutput/EventType%d/%s.root", EventType, CorrelationType);
+	if(gSystem->AccessPathName(filename->Data())){
+		cout << Form("ERROR: The file '%s' doesn't exist", filename->Data())<<endl;
+		delete filename;
+		return;
+	}
 	TFile* file = new TFile(filename->Data());
 	delete filename;
 
+	//tworzenie folderu na wykresy
+	char* directoryname = "Charts";
+	int control = 0;
+	Int_t status;
+	do{
+		status = gSystem->Exec(Form("mkdir %s%d", directoryname, control));
+		control++;
+	}while(status != 0);
+	directoryname = Form("%s%d", directoryname, control -1);
+	cout<<Form("Directory '%s' created.", directoryname)<<endl;
+
+
+	//tpi chart names
 	vector<string> names2D = {
 			"cnumepNonIdEPTrue", "cdenepNonIdEPTrue",
 			"cnumepNonIdEPTrueNoQS", "cdenepNonIdEPTrueNoQS"
 	};
 	vector<string> names1D = {"hpt", "heta", "hphiP", "hevmultAll"};
 	vector<string> names2F = {"hevmultPID"};
+
+
 
 	//Drawing divided histograms (TH2D)
 	for(int i=0; i<4; i+=2){
@@ -72,7 +93,8 @@ void DistributionDrawer(int EventType, char* CorrelationType){
 
 
 		char* file_name = new char[40];
-		strcpy(file_name, names2D[i].c_str());
+		strcpy(file_name, Form("%s/", directoryname));
+		strcat(file_name, names2D[i].c_str());
 		strcat(file_name, ".png");
 
 		c->SaveAs(file_name);
@@ -121,7 +143,8 @@ void DistributionDrawer(int EventType, char* CorrelationType){
 
 
 		char* file_name = new char[25];
-		strcpy(file_name, i.c_str());
+		strcpy(file_name, Form("%s/", directoryname));
+		strcat(file_name, i.c_str());
 		strcat(file_name, ".png");
 		c->SaveAs(file_name);
 	}
@@ -137,12 +160,31 @@ void DistributionDrawer(int EventType, char* CorrelationType){
 	h->Draw("colzz");
 
 	char* file_name = new char[25];
-	strcpy(file_name, names2F[0].c_str());
+	strcpy(file_name, Form("%s/", directoryname));
+	strcat(file_name, names2F[0].c_str());
 	strcat(file_name, ".png");
 	c->SaveAs(file_name);
 
 	delete c;
 	file->Close();
 
+}
 
+
+
+int main(int argc, char *args[]){
+	int drawingMode = atoi(args[1]);
+	int EventType = atoi(args[2]);
+
+	cout<<"DistributionDrawer working..."<<endl;
+	switch(drawingMode){
+		case 0:{//SIMPLE
+			SimpleDrawer(EventType, args[3]);
+		}
+		case 1:{//DIVIDED
+			//TODO
+		}
+	}
+
+	return 0;
 }
