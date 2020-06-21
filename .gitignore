@@ -1065,3 +1065,11 @@ build/events_EventType3/calm3dir/event248.root
 build/events_EventType3/calm3dir/event249.root
 build/events_EventType3/calm3dir/event250.root
 Tools/.vscode/settings.json
+build/DistributionDrawer
+build/outfilecf202a.root
+build/outfilekkcf202a.root
+build/outfilepi0cf202a.root
+build/outfilepipiulcf202a.root
+build/outfileppcf202a.root
+build/tpiOutput/New/EventType3/PipPip.root
+build/tpiOutput/Old/EventType3/PipPip.root
