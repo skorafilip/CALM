@@ -1,5 +1,8 @@
 #include "CALM.h"
 
+extern Configurator *sMainConfig;
+
+
 int *CALM::GetMultiplicitiesOfPartciles(int pythiaMult, int aMultBinMin, int aMultBinMax, int &Nsum)
 {
    int *Nrand = new int[mNpart];
@@ -562,6 +565,8 @@ bool CALM::SeparateJets_LOCAL(int Nsum, vector<double> *masses, vector<string> *
 
 CALM::CALM() : mRandom(0), mNames(0), mNmean(0)
 {
+   eventConfig = new ConfigurationHolder(sMainConfig);
+
    mRandom = new TRandom2(0);
    mNpart = 4; //particle types (pions, kaons, protons, lambdas)
    //double Nmean[] = {8.94, 1.1, 0.648, 0.19};
@@ -608,7 +613,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
    vector<vector<int>> Npart(mNpart, vector<int>(aMultBinMax)); //int Npart[mNpart][aMultBinMax]; // particle to be generated
 
    int Nsum;
-   int pythiaMult = 0;
+   int pythiaMult = eventConfig->pythiaMult;
    //_______distributing the total number of particles for each kind and for the specific particles
    //_______GLOBAL CONSERVATION LAWS - or one minijet for minijets with local conservation
 

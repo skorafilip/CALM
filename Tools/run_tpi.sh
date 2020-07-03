@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-tpi_path=$HOME"/Downloads/tpi_CALM-master/tpi/"
+tpi_path=$HOME"/Programs/tpi_CALM-master/tpi/"
 (find events_EventType${1}/ -type f)>$tpi_path"list.txt"
 
 echo "Tpi runnig"
@@ -12,7 +12,7 @@ then
     do
 
     gnome-terminal -- ./run_tpi.sh $1 $i
-    sleep 4s
+    sleep 2s
 
     done
 else

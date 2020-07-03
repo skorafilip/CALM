@@ -15,6 +15,7 @@
 //--------reggae
 #include "reggae.h"
 #include "specrel.h"
+#include "ConfigurationHolder.h"
 
 using namespace std;
 
@@ -54,6 +55,7 @@ private:
 	double Etot; //Total momentum to be distributed among particles
 	// values for this event
 	vector<string> mParticlesThisEvent;
+	ConfigurationHolder* eventConfig;
 
 private:
 	int *GetMultiplicitiesOfPartciles(int pythiaMult, int aMultBinMin, int aMultBinMax, int &Nsum);
