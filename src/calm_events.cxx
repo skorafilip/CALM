@@ -83,7 +83,8 @@ int main(int argc, char **argv)
   }
 
   MessageIntro();
-  sMainConfig = new Configurator;
+  sMainConfig = new Configurator(sMainINI);
+  //sMainConfig->ReadParameters();
   ReadParameters();
   
   {

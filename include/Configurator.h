@@ -42,13 +42,16 @@ class Configurator {
 
   public:
     Configurator();
+    Configurator(TString sConfigINI);
     ~Configurator();
 
+    void ReadParameters();
     TString GetParameter(const char* aKeyword) throw(TString);
     void    AddParameter(Parameter* aPar);
     int     PrintParameters();
 
   private:    
+    TString _sConfigINI;
     std::vector<Parameter> mParameters;	
 };
 

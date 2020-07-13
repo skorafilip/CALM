@@ -567,6 +567,10 @@ CALM::CALM() : mRandom(0), mNames(0), mNmean(0)
 {
    eventConfig = new ConfigurationHolder(sMainConfig);
 
+   Configurator c("./events.ini");
+   c.ReadParameters();
+   string s = c.GetParameter("singleEnergyDistr").Data();
+
    mRandom = new TRandom2(0);
    mNpart = 4; //particle types (pions, kaons, protons, lambdas)
    //double Nmean[] = {8.94, 1.1, 0.648, 0.19};
@@ -613,7 +617,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
    vector<vector<int>> Npart(mNpart, vector<int>(aMultBinMax)); //int Npart[mNpart][aMultBinMax]; // particle to be generated
 
    int Nsum;
-   int pythiaMult = eventConfig->pythiaMult;
+   int pythiaMult = 0;
    //_______distributing the total number of particles for each kind and for the specific particles
    //_______GLOBAL CONSERVATION LAWS - or one minijet for minijets with local conservation
 

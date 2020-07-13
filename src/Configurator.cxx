@@ -31,6 +31,7 @@
 #include <cstring>
 #include "Configurator.h"
 #include "THGlobal.h"
+#include "Parser.h"
 
 using namespace std;
 
@@ -39,9 +40,25 @@ Configurator::Configurator()
   mParameters.clear();
 }
 
+Configurator::Configurator(TString sConfigINI)
+{
+  mParameters.clear();
+
+  _sConfigINI = sConfigINI;
+}
+
 Configurator::~Configurator()
 {
   mParameters.clear();
+}
+
+void Configurator::ReadParameters()
+{
+  Parser* tParser;
+  
+  tParser = new Parser(_sConfigINI);
+  tParser->ReadINI(this);
+  delete tParser;
 }
 
 TString Configurator::GetParameter(const char* aKeyword) throw(TString)
