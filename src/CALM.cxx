@@ -565,11 +565,10 @@ bool CALM::SeparateJets_LOCAL(int Nsum, vector<double> *masses, vector<string> *
 
 CALM::CALM() : mRandom(0), mNames(0), mNmean(0)
 {
-   eventConfig = new ConfigurationHolder(sMainConfig);
+   Configurator* newConfig = new Configurator("./config.ini");
+   newConfig->ReadParameters();
 
-   Configurator c("./events.ini");
-   c.ReadParameters();
-   string s = c.GetParameter("singleEnergyDistr").Data();
+   eventConfig = new ConfigurationHolder(newConfig);
 
    mRandom = new TRandom2(0);
    mNpart = 4; //particle types (pions, kaons, protons, lambdas)
@@ -617,7 +616,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
    vector<vector<int>> Npart(mNpart, vector<int>(aMultBinMax)); //int Npart[mNpart][aMultBinMax]; // particle to be generated
 
    int Nsum;
-   int pythiaMult = 0;
+   int pythiaMult = eventConfig->pythiaMult;
    //_______distributing the total number of particles for each kind and for the specific particles
    //_______GLOBAL CONSERVATION LAWS - or one minijet for minijets with local conservation
 
@@ -630,7 +629,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
    {
       for (int j = 0; j < Nrand[i]; ++j)
       {
-         mParticlesThisEvent.push_back(mNames[i][Npart[i][j]]);
+         mParticlesThisEvent.push_back("test");//mNames[i][Npart[i][j]]);
       }
    }
 

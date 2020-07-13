@@ -1,4 +1,7 @@
 #include "ConfigurationHolder.h"
+#include <THGlobal.h>
+#include <TDatime.h>
+
 
 ConfigurationHolder::ConfigurationHolder()
 : pythiaMult(0), singleEnergyDistr("0.922477*(TMath::Power(x+2.15717,-1.57383)-1.40499e-05)"), 
@@ -7,6 +10,11 @@ ConfigurationHolder::ConfigurationHolder()
 }
 
 ConfigurationHolder::ConfigurationHolder(Configurator *sMainConfig){
+    TDatime tDate;
+    
+    tDate.Set();
+    PRINT_MESSAGE("["<<tDate.AsSQLString()<<"]\tLodaing configuration.");
+
     pythiaMult = sMainConfig->GetParameter("pythiaMult").Atoi();
     singleEnergyDistr = sMainConfig->GetParameter("singleEnergyDistr");
     Etot = sMainConfig->GetParameter("Etot").Atoi();
