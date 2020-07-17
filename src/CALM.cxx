@@ -46,20 +46,20 @@ int *CALM::GetMultiplicitiesOfPartciles(int pythiaMult, int aMultBinMin, int aMu
 void AddParticleSums(int &Qsum, int &Ssum, int &Bsum, string particleName, ParticleType *tParticleType)
 {
    int tmpInt;
-   //FILIPS: zsumowanie ladunku
+   //zsumowanie ladunku
    if (particleName.find("plu") != std::string::npos)
       Qsum++;
    else if (particleName.find("min") != std::string::npos || particleName.find("plb") != std::string::npos)
       Qsum--;
    else if (particleName.find("zer") != std::string::npos || particleName.find("zrb") != std::string::npos)
       ;
-   //FILIPS: policzenie liczby kwarkow i sprawdzenie czy wychodzi barion czy antybarion
+   //policzenie liczby kwarkow i sprawdzenie czy wychodzi barion czy antybarion
    tmpInt = tParticleType->GetNumberQ() - tParticleType->GetNumberAQ() + tParticleType->GetNumberS() - tParticleType->GetNumberAS();
    if (tmpInt == 3)
       Bsum++;
    else if (tmpInt == -3)
       Bsum--;
-   //FILIPS: policzenie dziwnosci
+   //policzenie dziwnosci
    tmpInt = tParticleType->GetNumberS() - tParticleType->GetNumberAS();
    if (tmpInt == 1)
       Ssum--; //  for quark s: S=-1
@@ -69,8 +69,8 @@ void AddParticleSums(int &Qsum, int &Ssum, int &Bsum, string particleName, Parti
 
 void CALM::CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, ParticleDB *aPartDB)
 {
-   int Qsum, Bsum, Ssum; //FILIPS: zmienne sumy ladunku, barionow, dziwnosci - do sprawadzania zasad zachowania
-   //int tmpInt;
+   int Qsum, Bsum, Ssum;
+   
    ParticleType *tParticleType;
    do
    {
@@ -79,33 +79,13 @@ void CALM::CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, Particl
       Bsum = 0;
       // generating the number of specific particles within each kind
       // check of the charge, strangeness and baryon number
-      for (int i = 0; i < mNpart; ++i) //FILIPS: dla kazdego typu czastek
+      for (int i = 0; i < mNpart; ++i)
       {
-         for (int j = 0; j < Nrand[i]; ++j) //FILIPS: dla kazdej czastki w typie
+         for (int j = 0; j < Nrand[i]; ++j)
          {
-            //FILIPS: policzenie ladunku, liczby barionowej i dziwnosci dla tej czastki
+            Npart[i][j] = (int)mRandom->Uniform(mNpartkinds[i]);
+            tParticleType = aPartDB->GetParticleType(mNames[i][Npart[i][j]].c_str());
 
-            Npart[i][j] = (int)mRandom->Uniform(mNpartkinds[i]);                      //FILIPS: tutaj chyba losuje parametry dla tej czastki // MJ: tak, czy to pi+, czy pi- czy pi0, i tak dalej.
-            tParticleType = aPartDB->GetParticleType(mNames[i][Npart[i][j]].c_str()); //FILIPS: zwraca typ czastki w obecnej petli
-            /*//FILIPS: zsumowanie ladunku
-            if (mNames[i][Npart[i][j]].find("plu") != std::string::npos)
-               Qsum++;
-            else if (mNames[i][Npart[i][j]].find("min") != std::string::npos || mNames[i][Npart[i][j]].find("plb") != std::string::npos)
-               Qsum--;
-            else if (mNames[i][Npart[i][j]].find("zer") != std::string::npos || mNames[i][Npart[i][j]].find("zrb") != std::string::npos)
-               ;
-            //FILIPS: policzenie liczby kwarkow i sprawdzenie czy wychodzi barion czy antybarion
-            tmpInt = tParticleType->GetNumberQ() - tParticleType->GetNumberAQ() + tParticleType->GetNumberS() - tParticleType->GetNumberAS();
-            if (tmpInt == 3)
-               Bsum++;
-            else if (tmpInt == -3)
-               Bsum--;
-            //FILIPS: policzenie dziwnosci
-            tmpInt = tParticleType->GetNumberS() - tParticleType->GetNumberAS();
-            if (tmpInt == 1)
-               Ssum--; //  for quark s: S=-1
-            else if (tmpInt == -1)
-               Ssum++;*/
             AddParticleSums(Qsum, Bsum, Ssum, mNames[i][Npart[i][j]], tParticleType);
          }
       }
@@ -115,13 +95,13 @@ void CALM::CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, Particl
 double CALM::GetTotalEnergy(int Nsum)
 {
    double Etot;
-   singleEnergyDistr = new TF1("singleEnergyDistr", "0.922477*(TMath::Power(x+2.15717,-1.57383)-1.40499e-05)", 0.4, 1100);
+   singleEnergyDistr = new TF1("singleEnergyDistr", eventConfig->singleEnergyDistr.c_str(), 0.4, 1100);
    do
    {
       Etot = 0.;
       for (int i = 0; i < Nsum; ++i)
          Etot += singleEnergyDistr->GetRandom(0.4, 1100);
-   } while (Etot > 7000.);
+   } while (Etot > eventConfig->MinEtot);
    delete singleEnergyDistr;
    return Etot;
 }
@@ -289,7 +269,7 @@ void CALM::SaveAllParticles_MINIJETS(vector<double> *masses, vector<string> *nam
       tParticle->SetParticlePX(tmp->E() + Ejet1, tmp->Px() + p1[0], tmp->Py() + p1[1], tmp->Pz() + p1[2],
                                0, XYZrand[i][0], XYZrand[i][1], XYZrand[i][2],
                                weight0 * weight1, 0);
-      aParticles->push_back(*tParticle); //FILIPS: wpychanie czastek do tablicy wynikowej
+      aParticles->push_back(*tParticle);
       delete tParticle;
    }
    for (int i = 0; i < masses[1].size(); i++)
@@ -299,7 +279,7 @@ void CALM::SaveAllParticles_MINIJETS(vector<double> *masses, vector<string> *nam
       tParticle->SetParticlePX(tmp->E() + Ejet2, tmp->Px() - p2[0], tmp->Py() - p2[1], tmp->Pz() - p2[2],
                                0, XYZrand[masses[0].size() + i][0], XYZrand[masses[0].size() + i][1], XYZrand[masses[0].size() + i][2],
                                weight0 * weight1, 0);
-      aParticles->push_back(*tParticle); //FILIPS: wpychanie czastek do tablicy wynikowej
+      aParticles->push_back(*tParticle);
       delete tParticle;
    }
 }
@@ -457,7 +437,6 @@ void CALM::SeparateJets(int Nsum, vector<double> *masses, vector<string> *names,
 {
    do
    {
-      //FILIPS: czyszczenie tablic na poczatku petli
       if (masses[0].size() > 0 || masses[1].size() > 0)
       {
          masses[0].clear();
@@ -465,11 +444,9 @@ void CALM::SeparateJets(int Nsum, vector<double> *masses, vector<string> *names,
          names[0].clear();
          names[1].clear();
       }
-      //FILIPS: to chyba sluzy aby podzielic czastki losowo na pol //dokladnie, bo wszystkie cząstki są rozkładane na dwa strumienie,
       for (int i = 0; i < Nsum; ++i)
       {
          
-         //FILIPS: losowane 0 albo 1, 50% szans ze wejdzie w if, 50 % ze w else
          if (mRandom->Integer(2))
          {
             masses[1].push_back(aPartDB->GetParticleType(mParticlesThisEvent[i].c_str())->GetMass());
@@ -481,7 +458,7 @@ void CALM::SeparateJets(int Nsum, vector<double> *masses, vector<string> *names,
             names[0].push_back(mParticlesThisEvent[i].c_str());
          }
       }
-   } while (masses[0].size() < 4 || masses[1].size() < 4); //FILIPS: nie rozumiem dlaczego akurat 4
+   } while (masses[0].size() < 4 || masses[1].size() < 4);
 }
 
 bool CALM::SeparateJets_LOCAL(int Nsum, vector<double> *masses, vector<string> *names, ParticleDB *aPartDB)
@@ -501,7 +478,7 @@ bool CALM::SeparateJets_LOCAL(int Nsum, vector<double> *masses, vector<string> *
          names[0].clear();
          names[1].clear();
       }
-      for (int it_clean = 0; it_clean < 2; it_clean++) //FILIPS: nie rozumiem dlaczego jest 3 a nie 2, Qjet i pozostale maja dlugosc 2 //MJ: slusznie, blad, tu powinno byc 2
+      for (int it_clean = 0; it_clean < 2; it_clean++)
       {
          Qjet[it_clean] = 0;
          Sjet[it_clean] = 0;
@@ -509,7 +486,6 @@ bool CALM::SeparateJets_LOCAL(int Nsum, vector<double> *masses, vector<string> *
       }
       for (int i = 0; i < Nsum; ++i)
       {
-         //FILIPS: to samo co w opcji wyzej tylko widze ze tutaj sprawdzane sa zasady zachodznia dla kazdego jetu osobno //MJ: dokladnie tak
          if (mRandom->Integer(2))
          {
             tParticleType = aPartDB->GetParticleType(mParticlesThisEvent[i].c_str());
@@ -565,9 +541,9 @@ bool CALM::SeparateJets_LOCAL(int Nsum, vector<double> *masses, vector<string> *
 
 CALM::CALM() : mRandom(0), mNames(0), mNmean(0)
 {
+   //FILIPS: tutaj odpalamy Configurator który wczytuje dane a następnie ładujemy je do ConfigurationHolder, który jest polem klasy CALM więc trzyma dane przez cały czas działąnia programu
    Configurator* newConfig = new Configurator("./config.ini");
    newConfig->ReadParameters();
-
    eventConfig = new ConfigurationHolder(newConfig);
 
    mRandom = new TRandom2(0);
@@ -616,6 +592,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
    vector<vector<int>> Npart(mNpart, vector<int>(aMultBinMax)); //int Npart[mNpart][aMultBinMax]; // particle to be generated
 
    int Nsum;
+   //FILIPS:tutaj przykład użycia ConfigurationHolder
    int pythiaMult = eventConfig->pythiaMult;
    //_______distributing the total number of particles for each kind and for the specific particles
    //_______GLOBAL CONSERVATION LAWS - or one minijet for minijets with local conservation
@@ -629,7 +606,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
    {
       for (int j = 0; j < Nrand[i]; ++j)
       {
-         mParticlesThisEvent.push_back("test");//mNames[i][Npart[i][j]]);
+         mParticlesThisEvent.push_back(mNames[i][Npart[i][j]]);
       }
    }
 
@@ -676,7 +653,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
       vector<string> *names = new vector<string>[amountOfJets];
       SeparateJets(Nsum, masses, names, aPartDB);
 
-      double *divideEn = new double[2]{1, 1}; // 0: energy of particles, 1: boostenergy
+      double *divideEn = eventConfig->divideEn; // 0: energy of particles, 1: boostenergy
 
       if (!TrySetEventDecay_MINIJETS(Nsum, masses, event0, event1, TotEnergy, divideEn))
       {
@@ -710,7 +687,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
 
       TLorentzVector *tmp;
       TLorentzVector en;
-      double *divideEn = new double[2]{1, 1}; // 0: energy of particles, 1: boostenergy
+      double *divideEn = eventConfig->divideEn;//new double[2]{1, 1}; // 0: energy of particles, 1: boostenergy
       if (!TrySetEventDecay_MINIJETS(Nsum, masses, event0, event1, TotEnergy, divideEn))
       {
          mParticlesThisEvent.clear();
