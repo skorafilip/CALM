@@ -58,7 +58,7 @@ private:
 	ConfigurationHolder* eventConfig;
 
 private:
-	int *GetMultiplicitiesOfPartciles(int pythiaMult, int aMultBinMin, int aMultBinMax, int &Nsum);
+	int *GetMultiplicitiesOfPartciles(int aMultBinMin, int aMultBinMax, int &Nsum);
 	void CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, ParticleDB *aPartDB);
 	vector<vector<double>> GetXYZ(int Nsum);
 	double GetTotalEnergy(int Nsum);

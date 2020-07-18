@@ -3,15 +3,17 @@
 extern Configurator *sMainConfig;
 
 
-int *CALM::GetMultiplicitiesOfPartciles(int pythiaMult, int aMultBinMin, int aMultBinMax, int &Nsum)
+int *CALM::GetMultiplicitiesOfPartciles(int aMultBinMin, int aMultBinMax, int &Nsum)
 {
    int *Nrand = new int[mNpart];
+   int pythiaMult = eventConfig->pythiaMult;
+
    if (pythiaMult == 1)
    {
-      pionsMultDistr = new TF1("pionsMultDistr", "0.334508*TMath::Gaus(x,56.8221,23.5326)*(5.97354e-07*x*x*x-8.88401e-05*x*x+0.00434252*x-0.0274243)", 8, 150);
-      kaonsMultDistr = new TF1("kaonsMultDistr", "0.731705*TMath::Gaus(x,15.5239,8.95871)*(1.1963e-05*x*x*x-0.000584791*x*x+0.010377*x-0.00451733)", 1, 50);
-      nucleonsMultDistr = new TF1("nucleonsMultDistr", "1.37498*TMath::Gaus(x,8.86527,6.11529)*(2.80839e-05*x*x*x-0.00103983*x*x+0.0134321*x-0.0026861)", 1, 50);
-      lambdasMultDistr = new TF1("lambdasMultDistr", "3.21961*TMath::Gaus(x,1.14316,1.58606)*(0.00221997*x*x*x-0.0125258*x*x+0.00457262*x+0.118927)", 0, 15);
+      pionsMultDistr = new TF1("pionsMultDistr", eventConfig->pionsMultDistr.c_str(), eventConfig->pionsMultDistr_xMin, eventConfig->pionsMultDistr_xMax);
+      kaonsMultDistr = new TF1("kaonsMultDistr", eventConfig->kaonsMultDistr.c_str(), eventConfig->kaonsMultDistr_xMin, eventConfig->kaonsMultDistr_xMax);
+      nucleonsMultDistr = new TF1("nucleonsMultDistr", eventConfig->nucleonsMultDistr.c_str(), eventConfig->nucleonsMultDistr_xMin, eventConfig->nucleonsMultDistr_xMax);
+      lambdasMultDistr = new TF1("lambdasMultDistr", eventConfig->lambdasMultDistr.c_str(), eventConfig->lambdasMultDistr_xMin, eventConfig->lambdasMultDistr_xMax);
       // generating the number of particles in each kind
       do
       {
@@ -95,12 +97,12 @@ void CALM::CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, Particl
 double CALM::GetTotalEnergy(int Nsum)
 {
    double Etot;
-   singleEnergyDistr = new TF1("singleEnergyDistr", eventConfig->singleEnergyDistr.c_str(), 0.4, 1100);
+   singleEnergyDistr = new TF1("singleEnergyDistr", eventConfig->singleEnergyDistr.c_str(), eventConfig->singleEnergyDistr_xMin, eventConfig->singleEnergyDistr_xMax);
    do
    {
       Etot = 0.;
       for (int i = 0; i < Nsum; ++i)
-         Etot += singleEnergyDistr->GetRandom(0.4, 1100);
+         Etot += singleEnergyDistr->GetRandom(eventConfig->singleEnergyDistr_xMin, eventConfig->singleEnergyDistr_xMax);
    } while (Etot > eventConfig->MinEtot);
    delete singleEnergyDistr;
    return Etot;
@@ -491,22 +493,7 @@ bool CALM::SeparateJets_LOCAL(int Nsum, vector<double> *masses, vector<string> *
             tParticleType = aPartDB->GetParticleType(mParticlesThisEvent[i].c_str());
             masses[1].push_back(tParticleType->GetMass());
             names[1].push_back(mParticlesThisEvent[i].c_str());
-            /*if (mParticlesThisEvent[i].find("plu") != std::string::npos)
-               Qjet[1]++;
-            else if (mParticlesThisEvent[i].find("min") != std::string::npos || mParticlesThisEvent[i].find("plb") != std::string::npos)
-               Qjet[1]--;
-            else if (mParticlesThisEvent[i].find("zer") != std::string::npos || mParticlesThisEvent[i].find("zrb") != std::string::npos)
-               ;
-            tmpInt = tParticleType->GetNumberQ() - tParticleType->GetNumberAQ() + tParticleType->GetNumberS() - tParticleType->GetNumberAS();
-            if (tmpInt == 3)
-               Bjet[1]++;
-            else if (tmpInt == -3)
-               Bjet[1]--;
-            tmpInt = tParticleType->GetNumberS() - tParticleType->GetNumberAS();
-            if (tmpInt == 1)
-               Sjet[1]--; //  for quark s: S=-1
-            else if (tmpInt == -1)
-               Sjet[1]++;*/
+
             AddParticleSums(Qjet[0], Bjet[0], Sjet[0], mParticlesThisEvent[i], tParticleType);
          }
          else
@@ -514,22 +501,7 @@ bool CALM::SeparateJets_LOCAL(int Nsum, vector<double> *masses, vector<string> *
             tParticleType = aPartDB->GetParticleType(mParticlesThisEvent[i].c_str());
             masses[0].push_back(tParticleType->GetMass());
             names[0].push_back(mParticlesThisEvent[i].c_str());
-            /*if (mParticlesThisEvent[i].find("plu") != std::string::npos)
-               Qjet[0]++;
-            else if (mParticlesThisEvent[i].find("min") != std::string::npos || mParticlesThisEvent[i].find("plb") != std::string::npos)
-               Qjet[0]--;
-            else if (mParticlesThisEvent[i].find("zer") != std::string::npos || mParticlesThisEvent[i].find("zrb") != std::string::npos)
-               ;
-            tmpInt = tParticleType->GetNumberQ() - tParticleType->GetNumberAQ() + tParticleType->GetNumberS() - tParticleType->GetNumberAS();
-            if (tmpInt == 3)
-               Bjet[0]++;
-            else if (tmpInt == -3)
-               Bjet[0]--;
-            tmpInt = tParticleType->GetNumberS() - tParticleType->GetNumberAS();
-            if (tmpInt == 1)
-               Sjet[0]--; //  for quark s: S=-1
-            else if (tmpInt == -1)
-               Sjet[0]++;*/
+
             AddParticleSums(Qjet[1], Bjet[1], Sjet[1], mParticlesThisEvent[i], tParticleType);
          }
       }
@@ -549,9 +521,9 @@ CALM::CALM() : mRandom(0), mNames(0), mNmean(0)
    mRandom = new TRandom2(0);
    mNpart = 4; //particle types (pions, kaons, protons, lambdas)
    //double Nmean[] = {8.94, 1.1, 0.648, 0.19};
-   double Nmean[] = {1.493, 0.183, 0.083, 0.048}; //charged particle yields per rapidity unit from 900 GeV data from http://arxiv.org/pdf/1504.00024v1.pdf (ALICE), lambdas from http://arxiv.org/pdf/1012.3257v2.pdf (ALICE)
-   double RapidityInterval = 5;                   //rapidity <-2.5;2.5>
-   double XYZ[] = {5., 5., 5.};
+   //double Nmean[] = {1.493, 0.183, 0.083, 0.048}; //charged particle yields per rapidity unit from 900 GeV data from http://arxiv.org/pdf/1504.00024v1.pdf (ALICE), lambdas from http://arxiv.org/pdf/1012.3257v2.pdf (ALICE)
+   //double RapidityInterval = 5;                   //rapidity <-2.5;2.5>
+   //double XYZ[] = {5., 5., 5.};
    int Npartkinds[] = {3, 4, 4, 2};
    string Names[] = {
        "pi0139plu", "pi0139min", "pi0135zer",
@@ -559,13 +531,13 @@ CALM::CALM() : mRandom(0), mNames(0), mNmean(0)
        "pr0938plu", "pr0938plb", "ne0939zer", "ne0939zrb",
        "Lm1115zer", "Lm1115zrb"};
    int it = 0;
-   mNmean = new double[mNpart];
+   mNmean = eventConfig->Nmean;//new double[mNpart];
    mNpartkinds = new int[mNpart];
    mNames = new string *[mNpart];
-   mRapidityInterval = RapidityInterval;
+   mRapidityInterval = eventConfig->RapidityInterval;//RapidityInterval;
    for (int i = 0; i < mNpart; i++)
    {
-      mNmean[i] = Nmean[i];
+      //mNmean[i] = Nmean[i];
       mNpartkinds[i] = Npartkinds[i];
       mNames[i] = new string[Npartkinds[i]];
       for (int j = 0; j < Npartkinds[i]; j++)
@@ -575,9 +547,9 @@ CALM::CALM() : mRandom(0), mNames(0), mNmean(0)
          it++;
       }
    }
-   mXYZ = new double[3];
-   for (int i = 0; i < 3; i++)
-      mXYZ[i] = XYZ[i];
+   mXYZ = eventConfig->XYZ;//new double[3];
+   /*for (int i = 0; i < 3; i++)
+      mXYZ[i] = XYZ[i];*/
 }
 CALM::~CALM()
 {
@@ -592,12 +564,10 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
    vector<vector<int>> Npart(mNpart, vector<int>(aMultBinMax)); //int Npart[mNpart][aMultBinMax]; // particle to be generated
 
    int Nsum;
-   //FILIPS:tutaj przykład użycia ConfigurationHolder
-   int pythiaMult = eventConfig->pythiaMult;
    //_______distributing the total number of particles for each kind and for the specific particles
    //_______GLOBAL CONSERVATION LAWS - or one minijet for minijets with local conservation
 
-   Nrand = GetMultiplicitiesOfPartciles(pythiaMult, aMultBinMin, aMultBinMax, Nsum);
+   Nrand = GetMultiplicitiesOfPartciles(aMultBinMin, aMultBinMax, Nsum);
 
    CheckConservAtionLaws(Nrand, Npart, aPartDB);
 

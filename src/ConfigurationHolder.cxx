@@ -44,7 +44,7 @@ ConfigurationHolder::ConfigurationHolder(Configurator *sMainConfig){
       };
       RapidityInterval = sMainConfig->GetParameter("RapidityInterval").Atoi();
       vector<string> vXYZ = SplitString(sMainConfig->GetParameter("XYZ").Data());
-      if(vNmean.size()!=3){
+      if(vXYZ.size()!=3){
         throw *(new TString("XYZ"));
       }
       XYZ = new double[3]{
@@ -56,27 +56,30 @@ ConfigurationHolder::ConfigurationHolder(Configurator *sMainConfig){
       pythiaMult = sMainConfig->GetParameter("pythiaMult").Atoi();
 
       pionsMultDistr = sMainConfig->GetParameter("pionsMultDistr");
-      pionsMultDistr_xMin = sMainConfig->GetParameter("pionsMultDistr_xMin").Atoi();
-      pionsMultDistr_xMax = sMainConfig->GetParameter("pionsMultDistr_xMax").Atoi();
+      pionsMultDistr_xMin = stod(sMainConfig->GetParameter("pionsMultDistr_xMin").Data());
+      pionsMultDistr_xMax = stod(sMainConfig->GetParameter("pionsMultDistr_xMax").Data());
 
       kaonsMultDistr = sMainConfig->GetParameter("kaonsMultDistr");
-      kaonsMultDistr_xMin = sMainConfig->GetParameter("kaonsMultDistr_xMin").Atoi();
-      kaonsMultDistr_xMax = sMainConfig->GetParameter("kaonsMultDistr_xMax").Atoi();
+      kaonsMultDistr_xMin = stod(sMainConfig->GetParameter("kaonsMultDistr_xMin").Data());
+      kaonsMultDistr_xMax = stod(sMainConfig->GetParameter("kaonsMultDistr_xMax").Data());
 
       nucleonsMultDistr = sMainConfig->GetParameter("nucleonsMultDistr");
-      nucleonsMultDistr_xMin = sMainConfig->GetParameter("nucleonsMultDistr_xMin").Atoi();
-      nucleonsMultDistr_xMax = sMainConfig->GetParameter("nucleonsMultDistr_xMax").Atoi();
+      nucleonsMultDistr_xMin = stod(sMainConfig->GetParameter("nucleonsMultDistr_xMin").Data());
+      nucleonsMultDistr_xMax = stod(sMainConfig->GetParameter("nucleonsMultDistr_xMax").Data());
 
       lambdasMultDistr = sMainConfig->GetParameter("lambdasMultDistr");
-      lambdasMultDistr_xMin = sMainConfig->GetParameter("lambdasMultDistr_xMin").Atoi();
-      lambdasMultDistr_xMax = sMainConfig->GetParameter("lambdasMultDistr_xMax").Atoi();
+      lambdasMultDistr_xMin = stod(sMainConfig->GetParameter("lambdasMultDistr_xMin").Data());
+      lambdasMultDistr_xMax = stod(sMainConfig->GetParameter("lambdasMultDistr_xMax").Data());
 
 
       singleEnergyDistr = sMainConfig->GetParameter("singleEnergyDistr");
+      singleEnergyDistr_xMin = stod(sMainConfig->GetParameter("singleEnergyDistr_xMin").Data());
+      singleEnergyDistr_xMax = stod(sMainConfig->GetParameter("singleEnergyDistr_xMax").Data());
+
       MinEtot = sMainConfig->GetParameter("MinEtot").Atoi();
       
       vector<string> vdivideEn = SplitString(sMainConfig->GetParameter("divideEn").Data());
-      if(vNmean.size()!=2){
+      if(vdivideEn.size()!=2){
         throw *(new TString("divideEn"));
       }
       divideEn = new double[2]{

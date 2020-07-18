@@ -17,23 +17,26 @@ class ConfigurationHolder {
 
         int pythiaMult;
         string pionsMultDistr;
-        int pionsMultDistr_xMin;
-        int pionsMultDistr_xMax;
+        double pionsMultDistr_xMin;
+        double pionsMultDistr_xMax;
         string kaonsMultDistr;
-        int kaonsMultDistr_xMin;
-        int kaonsMultDistr_xMax;
+        double kaonsMultDistr_xMin;
+        double kaonsMultDistr_xMax;
         string nucleonsMultDistr;
-        int nucleonsMultDistr_xMin;
-        int nucleonsMultDistr_xMax;
+        double nucleonsMultDistr_xMin;
+        double nucleonsMultDistr_xMax;
         string lambdasMultDistr;
-        int lambdasMultDistr_xMin;
-        int lambdasMultDistr_xMax;
+        double lambdasMultDistr_xMin;
+        double lambdasMultDistr_xMax;
 
         double* Nmean;
         double RapidityInterval;
         double* XYZ;
 
         string singleEnergyDistr;
+        double singleEnergyDistr_xMin;
+        double singleEnergyDistr_xMax;
+
         int MinEtot;
         double* divideEn;
 
