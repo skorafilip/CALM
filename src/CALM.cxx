@@ -2,49 +2,6 @@
 
 extern Configurator *sMainConfig;
 
-
-int *CALM::GetMultiplicitiesOfPartciles(int aMultBinMin, int aMultBinMax, int &Nsum)
-{
-   int *Nrand = new int[mNpart];
-   int pythiaMult = eventConfig->pythiaMult;
-
-   if (pythiaMult == 1)
-   {
-      pionsMultDistr = new TF1("pionsMultDistr", eventConfig->pionsMultDistr.c_str(), eventConfig->pionsMultDistr_xMin, eventConfig->pionsMultDistr_xMax);
-      kaonsMultDistr = new TF1("kaonsMultDistr", eventConfig->kaonsMultDistr.c_str(), eventConfig->kaonsMultDistr_xMin, eventConfig->kaonsMultDistr_xMax);
-      nucleonsMultDistr = new TF1("nucleonsMultDistr", eventConfig->nucleonsMultDistr.c_str(), eventConfig->nucleonsMultDistr_xMin, eventConfig->nucleonsMultDistr_xMax);
-      lambdasMultDistr = new TF1("lambdasMultDistr", eventConfig->lambdasMultDistr.c_str(), eventConfig->lambdasMultDistr_xMin, eventConfig->lambdasMultDistr_xMax);
-      // generating the number of particles in each kind
-      do
-      {
-         Nsum = 0;
-         Nrand[0] = pionsMultDistr->GetRandom();
-         Nrand[1] = kaonsMultDistr->GetRandom();
-         Nrand[2] = nucleonsMultDistr->GetRandom();
-         Nrand[3] = lambdasMultDistr->GetRandom();
-         Nsum = Nrand[0] + Nrand[1] + Nrand[2] + Nrand[3];
-      } while ((Nrand[1] + Nrand[3]) % 2 != 0 || (Nrand[2] + Nrand[3]) % 2 != 0);
-      delete pionsMultDistr;
-      delete kaonsMultDistr;
-      delete nucleonsMultDistr;
-      delete lambdasMultDistr;
-      return Nrand;
-   }
-   else
-   {
-      do
-      {
-         Nsum = 0;
-         for (int i = 0; i < mNpart; ++i)
-         {
-            Nrand[i] = mRandom->Poisson(mNmean[i] * mRapidityInterval * mNpartkinds[i]);
-            Nsum += Nrand[i];
-         }
-      } while (Nsum < aMultBinMin || Nsum > aMultBinMax || (Nrand[1] + Nrand[3]) % 2 != 0 || (Nrand[2] + Nrand[3]) % 2 != 0);
-      return Nrand;
-   }
-}
-
 void AddParticleSums(int &Qsum, int &Ssum, int &Bsum, string particleName, ParticleType *tParticleType)
 {
    int tmpInt;
@@ -67,6 +24,47 @@ void AddParticleSums(int &Qsum, int &Ssum, int &Bsum, string particleName, Parti
       Ssum--; //  for quark s: S=-1
    else if (tmpInt == -1)
       Ssum++;
+}
+
+int *CALM::GetMultiplicitiesOfPartciles(int aMultBinMin, int aMultBinMax, int &Nsum)
+{
+   int *Nrand = new int[mNpart];
+   int pythiaMult = eventConfig->pythiaMult;
+
+   if (pythiaMult == 1)
+   {
+      pionsMultDistr = new TF1("pionsMultDistr", eventConfig->pionsMultDistr.c_str(), eventConfig->pionsMultDistr_xMin, eventConfig->pionsMultDistr_xMax);
+      kaonsMultDistr = new TF1("kaonsMultDistr", eventConfig->kaonsMultDistr.c_str(), eventConfig->kaonsMultDistr_xMin, eventConfig->kaonsMultDistr_xMax);
+      nucleonsMultDistr = new TF1("nucleonsMultDistr", eventConfig->nucleonsMultDistr.c_str(), eventConfig->nucleonsMultDistr_xMin, eventConfig->nucleonsMultDistr_xMax);
+      lambdasMultDistr = new TF1("lambdasMultDistr", eventConfig->lambdasMultDistr.c_str(), eventConfig->lambdasMultDistr_xMin, eventConfig->lambdasMultDistr_xMax);
+      // generating the number of particles in each kind
+      do
+      {
+         Nsum = 0;
+         Nrand[0] = pionsMultDistr->GetRandom();
+         Nrand[1] = kaonsMultDistr->GetRandom();
+         Nrand[2] = nucleonsMultDistr->GetRandom();
+         Nrand[3] = lambdasMultDistr->GetRandom();
+         Nsum = Nrand[0] + Nrand[1] + Nrand[2] + Nrand[3];
+      } while (Nsum < aMultBinMin || Nsum > aMultBinMax || (Nrand[1] + Nrand[3]) % 2 != 0 || (Nrand[2] + Nrand[3]) % 2 != 0);
+      delete pionsMultDistr;
+      delete kaonsMultDistr;
+      delete nucleonsMultDistr;
+      delete lambdasMultDistr;
+   }
+   else
+   {
+      do
+      {
+         Nsum = 0;
+         for (int i = 0; i < mNpart; ++i)
+         {
+            Nrand[i] = mRandom->Poisson(mNmean[i] * mRapidityInterval * mNpartkinds[i]);
+            Nsum += Nrand[i];
+         }
+      } while (Nsum < aMultBinMin || Nsum > aMultBinMax || (Nrand[1] + Nrand[3]) % 2 != 0 || (Nrand[2] + Nrand[3]) % 2 != 0);
+   }
+   return Nrand;
 }
 
 void CALM::CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, ParticleDB *aPartDB)
@@ -94,20 +92,6 @@ void CALM::CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, Particl
    } while (Qsum != 0 || Ssum != 0 || Bsum != 0);
 }
 
-double CALM::GetTotalEnergy(int Nsum)
-{
-   double Etot;
-   singleEnergyDistr = new TF1("singleEnergyDistr", eventConfig->singleEnergyDistr.c_str(), eventConfig->singleEnergyDistr_xMin, eventConfig->singleEnergyDistr_xMax);
-   do
-   {
-      Etot = 0.;
-      for (int i = 0; i < Nsum; ++i)
-         Etot += singleEnergyDistr->GetRandom(eventConfig->singleEnergyDistr_xMin, eventConfig->singleEnergyDistr_xMax);
-   } while (Etot > eventConfig->MinEtot);
-   delete singleEnergyDistr;
-   return Etot;
-}
-
 vector<vector<double>> CALM::GetXYZ(int Nsum)
 {
    vector<vector<double>> XYZrand(Nsum, vector<double>(3));
@@ -121,6 +105,20 @@ vector<vector<double>> CALM::GetXYZ(int Nsum)
    return XYZrand;
 }
 
+double CALM::GetTotalEnergy(int Nsum)
+{
+   double Etot;
+   singleEnergyDistr = new TF1("singleEnergyDistr", eventConfig->singleEnergyDistr.c_str(), eventConfig->singleEnergyDistr_xMin, eventConfig->singleEnergyDistr_xMax);
+   do
+   {
+      Etot = 0.;
+      for (int i = 0; i < Nsum; ++i)
+         Etot += singleEnergyDistr->GetRandom(eventConfig->singleEnergyDistr_xMin, eventConfig->singleEnergyDistr_xMax);
+   } while (Etot > eventConfig->EtotMax);
+   delete singleEnergyDistr;
+   return Etot;
+}
+
 double *CALM::GetMasses(int Nsum, ParticleDB *aPartDB)
 {
    double *masses = new double[Nsum];
@@ -131,6 +129,81 @@ double *CALM::GetMasses(int Nsum, ParticleDB *aPartDB)
    return masses;
 }
 
+void CALM::SeparateJets(int Nsum, vector<double> *masses, vector<string> *names, ParticleDB *aPartDB)
+{
+   do
+   {
+      if (masses[0].size() > 0 || masses[1].size() > 0)
+      {
+         masses[0].clear();
+         masses[1].clear();
+         names[0].clear();
+         names[1].clear();
+      }
+      for (int i = 0; i < Nsum; ++i)
+      {
+         
+         if (mRandom->Integer(2))
+         {
+            masses[1].push_back(aPartDB->GetParticleType(mParticlesThisEvent[i].c_str())->GetMass());
+            names[1].push_back(mParticlesThisEvent[i].c_str());
+         }
+         else
+         {
+            masses[0].push_back(aPartDB->GetParticleType(mParticlesThisEvent[i].c_str())->GetMass());
+            names[0].push_back(mParticlesThisEvent[i].c_str());
+         }
+      }
+   } while (masses[0].size() < 4 || masses[1].size() < 4);
+}
+
+bool CALM::SeparateJets_LOCAL(int Nsum, vector<double> *masses, vector<string> *names, ParticleDB *aPartDB)
+{
+   ParticleType *tParticleType;
+   bool isSuccess = false;
+   int control = 0;
+   int Qjet[2], Bjet[2], Sjet[2];
+   //int tmpInt;
+
+   do
+   {
+      if (masses[0].size() > 0 || masses[1].size() > 0)
+      {
+         masses[0].clear();
+         masses[1].clear();
+         names[0].clear();
+         names[1].clear();
+      }
+      for (int it_clean = 0; it_clean < 2; it_clean++)
+      {
+         Qjet[it_clean] = 0;
+         Sjet[it_clean] = 0;
+         Bjet[it_clean] = 0;
+      }
+      for (int i = 0; i < Nsum; ++i)
+      {
+         if (mRandom->Integer(2))
+         {
+            tParticleType = aPartDB->GetParticleType(mParticlesThisEvent[i].c_str());
+            masses[1].push_back(tParticleType->GetMass());
+            names[1].push_back(mParticlesThisEvent[i].c_str());
+
+            AddParticleSums(Qjet[0], Bjet[0], Sjet[0], mParticlesThisEvent[i], tParticleType);
+         }
+         else
+         {
+            tParticleType = aPartDB->GetParticleType(mParticlesThisEvent[i].c_str());
+            masses[0].push_back(tParticleType->GetMass());
+            names[0].push_back(mParticlesThisEvent[i].c_str());
+
+            AddParticleSums(Qjet[1], Bjet[1], Sjet[1], mParticlesThisEvent[i], tParticleType);
+         }
+      }
+      isSuccess = Qjet[0] == 0 && Sjet[0] == 0 && Bjet[0] == 0 && Qjet[1] == 0 && Sjet[1] == 0 && Bjet[1] == 0 && masses[0].size() >= 4 && masses[1].size() >= 4;
+      control++;
+   } while (!(isSuccess || control > 100)); //Qjet[0] != 0 || Sjet[0] != 0 || Bjet[0] != 0 || Qjet[1] != 0 || Sjet[1] != 0 || Bjet[1] != 0 || masses[0].size() < 4 || masses[1].size() < 4);
+   return isSuccess;
+}
 bool CALM::TrySetEventDecay(int Nsum, double *masses, TGenPhaseSpace &event, double &TotEnergy)
 {
    bool isSuccess = false;
@@ -214,6 +287,88 @@ bool CALM::FilterUnlikelyEvents_MINIJETS(TGenPhaseSpace &event0, TGenPhaseSpace 
       control++;
    } while (!(isSuccess || control > 1e6));
    return isSuccess;
+}
+
+bool CALM::ReggaeNegativeEnergyCheck(int Nsum, double *masses, vector4 en, vector4 *avec)
+{
+   long int seed = time(NULL);
+
+   bool checkE = true; //isSuccess; check negative energy
+   int control = 0;
+   do
+   {
+      Mconserv(en, Nsum, masses, avec, &seed); //genbod algoritmus
+      collision(Nsum, avec, &seed);            //collision algoritmus
+      checkE = true;
+
+      //*****************************************
+      //check particles for negative energy: in such case re-generate the event
+
+      for (int i = 0; i < Nsum; i++)
+      {
+         if (avec[i][0] <= 0 || avec[i][1] != avec[i][1] || avec[i][2] != avec[i][2] || avec[i][3] != avec[i][3])
+         {
+            checkE = false; //cout<<"Negative energy!"<<endl;
+         }
+      }
+
+      control++;
+   } while (!(checkE || control >= 10));
+
+   return checkE;
+}
+
+bool CALM::ReggaeNegativeEnergyCheck_MINIJETS(int Nsum, vector<double> *masses, vector4 en, vector4 *avec0, vector4 *avec1)
+{
+   double masses0[masses[0].size()];
+   double masses1[masses[1].size()];
+   for (int j = 0; j < masses[0].size(); ++j)
+   {
+      masses0[j] = masses[0][j];
+   }
+   for (int j = 0; j < masses[1].size(); ++j)
+   {
+      masses1[j] = masses[1][j];
+   }
+
+   long int seed = time(NULL);
+
+   bool checkE = 1; //isSuccess; check negative energy
+   int control = 0;
+   do
+   {
+      checkE = 1;
+      //first jet
+      Mconserv(en, masses[0].size(), masses0, avec0, &seed); //genbod algoritmus
+      collision(masses[0].size(), avec0, &seed);             //collision algoritmus
+      //second jet
+      Mconserv(en, masses[1].size(), masses1, avec1, &seed); //genbod algoritmus
+      collision(masses[1].size(), avec1, &seed);             //collision algoritmus
+
+      //*****************************************
+      //check particles for negative energy: in such case re-generate the event
+
+      for (int i = 0; i < masses[0].size(); i++)
+      {
+         if (avec0[i][0] <= 0 || avec0[i][1] != avec0[i][1] || avec0[i][2] != avec0[i][2] || avec0[i][3] != avec0[i][3])
+         {
+
+            checkE = 0; //cout<<"Negative energy!"<<endl;
+         }
+      }
+      for (int i = 0; i < masses[1].size(); i++)
+      {
+         if (avec1[i][0] <= 0 || avec1[i][1] != avec1[i][1] || avec1[i][2] != avec1[i][2] || avec1[i][3] != avec1[i][3])
+         {
+
+            checkE = 0; //cout<<"Negative energy!"<<endl;
+         }
+      }
+
+      control++;
+   } while (!(checkE || control >= 10));
+
+   return checkE;
 }
 
 void CALM::SaveAllParticles_GLOBAL(int Nsum, double weight, vector<vector<double>> XYZrand, TGenPhaseSpace event, ParticleDB *aPartDB, list<Particle> *aParticles)
@@ -349,166 +504,6 @@ void CALM::SaveAllParticles_MINIJETS_REGGAE(vector<double> *masses, vector<strin
    }
 
    delete tmp;
-}
-
-bool CALM::DOREGGAE(int Nsum, double *masses, vector4 en, vector4 *avec)
-{
-   long int seed = time(NULL);
-
-   bool checkE = true; //isSuccess
-   int control = 0;
-   do
-   {
-      Mconserv(en, Nsum, masses, avec, &seed); //genbod algoritmus
-      collision(Nsum, avec, &seed);            //collision algoritmus
-      checkE = true;
-
-      //*****************************************
-      //check particles for negative energy: in such case re-generate the event
-
-      for (int i = 0; i < Nsum; i++)
-      {
-         if (avec[i][0] <= 0 || avec[i][1] != avec[i][1] || avec[i][2] != avec[i][2] || avec[i][3] != avec[i][3])
-         {
-            checkE = false; //cout<<"Negative energy!"<<endl;
-         }
-      }
-
-      control++;
-   } while (!(checkE || control >= 10));
-
-   return checkE;
-}
-
-bool CALM::DOREGGAE_MINIJETS(int Nsum, vector<double> *masses, vector4 en, vector4 *avec0, vector4 *avec1)
-{
-   double masses0[masses[0].size()];
-   double masses1[masses[1].size()];
-   for (int j = 0; j < masses[0].size(); ++j)
-   {
-      masses0[j] = masses[0][j];
-   }
-   for (int j = 0; j < masses[1].size(); ++j)
-   {
-      masses1[j] = masses[1][j];
-   }
-
-   long int seed = time(NULL);
-
-   bool checkE = 1; //isSuccess
-   int control = 0;
-   do
-   {
-      checkE = 1;
-      //first jet
-      Mconserv(en, masses[0].size(), masses0, avec0, &seed); //genbod algoritmus
-      collision(masses[0].size(), avec0, &seed);             //collision algoritmus
-      //second jet
-      Mconserv(en, masses[1].size(), masses1, avec1, &seed); //genbod algoritmus
-      collision(masses[1].size(), avec1, &seed);             //collision algoritmus
-      //*****************************************
-      //check particles for negative energy: in such case re-generate the event
-
-      //*****************************************
-      //check particles for negative energy: in such case re-generate the event
-
-      for (int i = 0; i < masses[0].size(); i++)
-      {
-         if (avec0[i][0] <= 0 || avec0[i][1] != avec0[i][1] || avec0[i][2] != avec0[i][2] || avec0[i][3] != avec0[i][3])
-         {
-
-            checkE = 0; //cout<<"Negative energy!"<<endl;
-         }
-      }
-      for (int i = 0; i < masses[1].size(); i++)
-      {
-         if (avec1[i][0] <= 0 || avec1[i][1] != avec1[i][1] || avec1[i][2] != avec1[i][2] || avec1[i][3] != avec1[i][3])
-         {
-
-            checkE = 0; //cout<<"Negative energy!"<<endl;
-         }
-      }
-
-      control++;
-   } while (!(checkE || control >= 10));
-
-   return checkE;
-}
-
-void CALM::SeparateJets(int Nsum, vector<double> *masses, vector<string> *names, ParticleDB *aPartDB)
-{
-   do
-   {
-      if (masses[0].size() > 0 || masses[1].size() > 0)
-      {
-         masses[0].clear();
-         masses[1].clear();
-         names[0].clear();
-         names[1].clear();
-      }
-      for (int i = 0; i < Nsum; ++i)
-      {
-         
-         if (mRandom->Integer(2))
-         {
-            masses[1].push_back(aPartDB->GetParticleType(mParticlesThisEvent[i].c_str())->GetMass());
-            names[1].push_back(mParticlesThisEvent[i].c_str());
-         }
-         else
-         {
-            masses[0].push_back(aPartDB->GetParticleType(mParticlesThisEvent[i].c_str())->GetMass());
-            names[0].push_back(mParticlesThisEvent[i].c_str());
-         }
-      }
-   } while (masses[0].size() < 4 || masses[1].size() < 4);
-}
-
-bool CALM::SeparateJets_LOCAL(int Nsum, vector<double> *masses, vector<string> *names, ParticleDB *aPartDB)
-{
-   ParticleType *tParticleType;
-   bool isSuccess = false;
-   int control = 0;
-   int Qjet[2], Bjet[2], Sjet[2];
-   //int tmpInt;
-
-   do
-   {
-      if (masses[0].size() > 0 || masses[1].size() > 0)
-      {
-         masses[0].clear();
-         masses[1].clear();
-         names[0].clear();
-         names[1].clear();
-      }
-      for (int it_clean = 0; it_clean < 2; it_clean++)
-      {
-         Qjet[it_clean] = 0;
-         Sjet[it_clean] = 0;
-         Bjet[it_clean] = 0;
-      }
-      for (int i = 0; i < Nsum; ++i)
-      {
-         if (mRandom->Integer(2))
-         {
-            tParticleType = aPartDB->GetParticleType(mParticlesThisEvent[i].c_str());
-            masses[1].push_back(tParticleType->GetMass());
-            names[1].push_back(mParticlesThisEvent[i].c_str());
-
-            AddParticleSums(Qjet[0], Bjet[0], Sjet[0], mParticlesThisEvent[i], tParticleType);
-         }
-         else
-         {
-            tParticleType = aPartDB->GetParticleType(mParticlesThisEvent[i].c_str());
-            masses[0].push_back(tParticleType->GetMass());
-            names[0].push_back(mParticlesThisEvent[i].c_str());
-
-            AddParticleSums(Qjet[1], Bjet[1], Sjet[1], mParticlesThisEvent[i], tParticleType);
-         }
-      }
-      isSuccess = Qjet[0] == 0 && Sjet[0] == 0 && Bjet[0] == 0 && Qjet[1] == 0 && Sjet[1] == 0 && Bjet[1] == 0 && masses[0].size() >= 4 && masses[1].size() >= 4;
-      control++;
-   } while (!(isSuccess || control > 100)); //Qjet[0] != 0 || Sjet[0] != 0 || Bjet[0] != 0 || Qjet[1] != 0 || Sjet[1] != 0 || Bjet[1] != 0 || masses[0].size() < 4 || masses[1].size() < 4);
-   return isSuccess;
 }
 
 CALM::CALM() : mRandom(0), mNames(0), mNmean(0)
@@ -696,7 +691,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
       en[2] = 0.0;
       en[3] = 0.0; //0 - energy, 1- px, 2-py, 3-px
 
-      if (!DOREGGAE(Nsum, masses, en, avec))
+      if (!ReggaeNegativeEnergyCheck(Nsum, masses, en, avec))
       {
          return 99;
       }
@@ -727,7 +722,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
       en[1] = 0.0;
       en[2] = 0.0;
       en[3] = 0.0; //0 - energy, 1- px, 2-py, 3-px
-      if (!DOREGGAE_MINIJETS(Nsum, masses, en, avec0, avec1))
+      if (!ReggaeNegativeEnergyCheck_MINIJETS(Nsum, masses, en, avec0, avec1))
       {
          return 99;
       }
@@ -764,7 +759,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
       en[1] = 0.0;
       en[2] = 0.0;
       en[3] = 0.0; //0 - energy, 1- px, 2-py, 3-px
-      if (!DOREGGAE_MINIJETS(Nsum, masses, en, avec0, avec1))
+      if (!ReggaeNegativeEnergyCheck_MINIJETS(Nsum, masses, en, avec0, avec1))
       {
          return 99;
       }

@@ -37,7 +37,7 @@ class ConfigurationHolder {
         double singleEnergyDistr_xMin;
         double singleEnergyDistr_xMax;
 
-        int MinEtot;
+        int EtotMax;
         double* divideEn;
 
         //int EventsPerFile;

@@ -2,7 +2,7 @@
 #include <THGlobal.h>
 #include <TDatime.h>
 
-
+//string tokenizer, used to separate values from string arrays defined in config.ini file
 vector<string> SplitString(string strarray){
   vector<string> vresult;
   int index;
@@ -27,7 +27,7 @@ ConfigurationHolder::ConfigurationHolder(Configurator *sMainConfig){
     TDatime tDate;
     
     tDate.Set();
-    PRINT_MESSAGE("["<<tDate.AsSQLString()<<"]\tLodaing configuration.");
+    PRINT_MESSAGE("["<<tDate.AsSQLString()<<"]\tLodaing configuration");
 
     try{
       string s = sMainConfig->GetParameter("Nmean").Data();
@@ -54,6 +54,8 @@ ConfigurationHolder::ConfigurationHolder(Configurator *sMainConfig){
       };
 
       pythiaMult = sMainConfig->GetParameter("pythiaMult").Atoi();
+      if(pythiaMult == 1)
+        PRINT_MESSAGE("["<<tDate.AsSQLString()<<"]\tUsing Pythia particle distribution functions");
 
       pionsMultDistr = sMainConfig->GetParameter("pionsMultDistr");
       pionsMultDistr_xMin = stod(sMainConfig->GetParameter("pionsMultDistr_xMin").Data());
@@ -76,7 +78,7 @@ ConfigurationHolder::ConfigurationHolder(Configurator *sMainConfig){
       singleEnergyDistr_xMin = stod(sMainConfig->GetParameter("singleEnergyDistr_xMin").Data());
       singleEnergyDistr_xMax = stod(sMainConfig->GetParameter("singleEnergyDistr_xMax").Data());
 
-      MinEtot = sMainConfig->GetParameter("MinEtot").Atoi();
+      EtotMax = sMainConfig->GetParameter("EtotMax").Atoi();
       
       vector<string> vdivideEn = SplitString(sMainConfig->GetParameter("divideEn").Data());
       if(vdivideEn.size()!=2){
