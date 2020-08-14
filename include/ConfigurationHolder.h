@@ -5,43 +5,67 @@
 #include <string>
 #include "Configurator.h"
 
-//FILIPS: nowa klasa, ma na celu przechowywanie parametrów wczytanych w plikach konfiguracyjnych
-//zakładam że gdy będą dochodzić nowe paramtery trzeba będzie dodawać nowe zmienne
-//wszystko wczytuje się raz na początku działania programu, potem jest tylko odczyt z pól klasy, wydaje mi się, że to optymalne rozwiązanie
 using namespace std;
 class ConfigurationHolder {
 	
 	public:
         ConfigurationHolder();
         ConfigurationHolder(Configurator *sMainConfig);
+        ~ConfigurationHolder();
 
-        int pythiaMult;
-        string pionsMultDistr;
-        double pionsMultDistr_xMin;
-        double pionsMultDistr_xMax;
-        string kaonsMultDistr;
-        double kaonsMultDistr_xMin;
-        double kaonsMultDistr_xMax;
-        string nucleonsMultDistr;
-        double nucleonsMultDistr_xMin;
-        double nucleonsMultDistr_xMax;
-        string lambdasMultDistr;
-        double lambdasMultDistr_xMin;
-        double lambdasMultDistr_xMax;
+        int pythiaMult; ///< %Parameter that determines if pythia distribution will be used 
+        string pionsMultDistr; ///< Pythia distribution function for pions 
+        double pionsMultDistr_xMin; ///< Pythia distribution function minimum range for pions 
+        double pionsMultDistr_xMax; ///< Pythia distribution function maximum range for pions 
+        string kaonsMultDistr; ///< Pythia distribution function for kaons 
+        double kaonsMultDistr_xMin; ///< Pythia distribution function minimum range for kaons 
+        double kaonsMultDistr_xMax; ///< Pythia distribution function maximum range for kaons 
+        string nucleonsMultDistr; ///< Pythia distribution function for nucleons 
+        double nucleonsMultDistr_xMin; ///< Pythia distribution function minimum range for nucleons 
+        double nucleonsMultDistr_xMax; ///< Pythia distribution function maximum range for nucleons 
+        string lambdasMultDistr; ///< Pythia distribution function for lambdas 
+        double lambdasMultDistr_xMin; ///< Pythia distribution function minimum range for lambdas 
+        double lambdasMultDistr_xMax; ///< Pythia distribution function maximum range for lambdas 
 
-        double* Nmean;
-        double RapidityInterval;
-        double* XYZ;
+        double* Nmean; ///< Charged particle yields per rapidity unit from 900 GeV 
+        double RapidityInterval; ///< Interval of rapidity 
+        double* XYZ; ///< Sigma of Gaus distribution for 3D 
 
-        string singleEnergyDistr;
-        double singleEnergyDistr_xMin;
-        double singleEnergyDistr_xMax;
+        string singleEnergyDistr; ///< Energy distribution function for all particles 
+        double singleEnergyDistr_xMin; ///< Energy distribution function minimum range for for all particles 
+        double singleEnergyDistr_xMax;///< Energy distribution function maximum range for for all particles 
 
-        int EtotMax;
-        double* divideEn;
+        int EtotMax; ///< Total energy of all particles
+        double* divideEn; ///< Energy divider - divideEn[0]: energy of particles, divideEn[1]: boostenergy
 
-        //int EventsPerFile;
+  private:
+        vector<string> SplitString(string strarray, char token);
 
 };
 
 #endif
+
+/*! @file ConfigurationHolder.h
+ * @brief Definition of ConfigurationHolder class. Holds values from configuration file.
+ */
+/*! @class ConfigurationHolder
+ * @brief Holds values of parameters specified in configuration file. CALM sets values once, on the beggining, and they are being read many times during simulation.
+ * 
+ *
+ * @fn ConfigurationHolder::ConfigurationHolder()
+ * @brief Default constructor.
+ *
+ * @fn ConfigurationHolder::ConfigurationHolder(Configurator *sMainConfig)
+ * @brief Reads specified parameters from given Configurator.
+ * @param [in] sMainConfig pointer to Configurator
+ *
+ * @fn ConfigurationHolder::~ConfigurationHolder()
+ * @brief Destructor.
+ *
+ * @fn vector<string> ConfigurationHolder::SplitString()
+ * @brief String splitter, helps to read arrays from string parameters. Returnes vector of strings separated from strarray with token
+ * @param [in] strarray array string to separate
+ * @param [in] token which separates values
+ * 
+ * 
+ */

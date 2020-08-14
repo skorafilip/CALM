@@ -35,27 +35,27 @@ public:
 	CALM();
 	~CALM();
 	int GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMax, double aEnergy, std::list<Particle> *aParticles, eEventType aEventType = GLOBAL);
-	void SetMultiplicities(ParticleDB *aDB, int aMultBinMin, int aMultBinMax);
-	void Randomize();
+	//void SetMultiplicities(ParticleDB *aDB, int aMultBinMin, int aMultBinMax);
+	//void Randomize();
 
 private:
-	TRandom2 *mRandom;
+	TRandom2 *mRandom; ///< Random number generator
 	// values constant (what can be generated etc)
-	int mNpart;				  // number of kinds of particles (pions, kaons, nuclides etc.)
-	double *mNmean;			  // mean values for the particle yields dN/dy of each particle count -> taken from ALICE
-	double mRapidityInterval; //interval of rapidity
-	double *mXYZ;			  // to generate distance from primary vertex
-	int *mNpartkinds;		  // number of particles for each kind
-	string **mNames;		  // names of particles to be generated
-	TF1 *singleEnergyDistr;	  // energy distribution of single particle -> taken from Pythia
-	TF1 *pionsMultDistr;
-	TF1 *kaonsMultDistr;
-	TF1 *nucleonsMultDistr;
-	TF1 *lambdasMultDistr;
-	double Etot; //Total momentum to be distributed among particles
+	int mNpart;				  ///< Number of kinds of particles (pions, kaons, nuclides etc.)
+	double *mNmean;			  ///< Mean values for the particle yields dN/dy of each particle count -> taken from ALICE
+	double mRapidityInterval; ///< Interval of rapidity
+	double *mXYZ;			  ///< To generate distance from primary vertex
+	int *mNpartkinds;		  ///< Number of particles for each kind
+	string **mNames;		  ///< Names of particles to be generated
+	TF1 *singleEnergyDistr;	  ///< Energy distribution of single particle -> taken from Pythia
+	TF1 *pionsMultDistr;	  ///< Pythia distribution function for pions
+	TF1 *kaonsMultDistr;      ///< Pythia distribution function for kaons
+	TF1 *nucleonsMultDistr;   ///< Pythia distribution function for nucleons
+	TF1 *lambdasMultDistr;    ///< Pythia distribution function for lambdas
+	double Etot; 			  ///< Total momentum to be distributed among particles
 	// values for this event
-	vector<string> mParticlesThisEvent;
-	ConfigurationHolder* eventConfig;
+	vector<string> mParticlesThisEvent; ///< List of particle names for one event
+	ConfigurationHolder* eventConfig; ///< ConfigurationHolder with parameters from file
 
 private:
 	int *GetMultiplicitiesOfPartciles(int aMultBinMin, int aMultBinMax, int &Nsum);
@@ -85,3 +85,95 @@ private:
 };
 
 #endif
+
+
+/*! @file CALM.h
+ * @brief 
+ */
+/*! @class CALM
+ * @brief Representation of the program, handles all aspects of simulation.
+ * 
+ *
+ * @fn CALM::CALM()
+ * @brief Default constructor.
+ *
+ *
+ * @fn CALM::~CALM()
+ * @brief Destructor.
+ *
+ * @fn int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMax, double aEnergy, std::list<Particle> *aParticles, eEventType aEventType = GLOBAL)
+ * @brief Generates event and saves outcome particles. It returnes 0 if successed and 99 if not.
+ * @param [in] aPartDB pointer to ParticleDB
+ * @param [in] aMultBinMin minimum multiplicity of event
+ * @param [in] aMultBinMax maxiumum multiplicity of event
+ * @param [in] aEnergy ten parametr jest wyczytywany ale nie jest nigdzie używany
+ * @param [out] aParticles pointer to list<Particle> which contains all particle data generated in one event
+ * @param [in] aEventType enum that specifies which CALM option will be performed
+ * @retval 0 if simulation is correctly completed
+ * @retval 99 if generated data has no predisposition to finish the event
+ * 
+ * 
+ * 
+ * @fn int *CALM::GetMultiplicitiesOfPartciles(int aMultBinMin, int aMultBinMax, int &Nsum)
+ * @brief Randomize multiciplity of each kind (pion, etc.) for event and returnes pointer to array of them
+ * @param [in] aMultBinMin minimum multiplicity of event
+ * @param [in] aMultBinMax maxiumum multiplicity of event
+ * @param [out] Nsum reference to the variable holding amount of all particles
+ * 
+ *
+ * 
+ * @fn void CALM::CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, ParticleDB *aPartDB)
+ * @brief Generates the number of specific particles within each kind and check of the charge, strangeness and baryon number
+ * @param [in] Nrand pointer to array returned by CALM::GetMultiplicitiesOfPartciles()
+ * @param [out] Npart reference to the vector holding vectors of types (pion+, pion-, etc..) for each kind (pion, kaon, etc...)
+ * @param [in] aPartDB pointer to particle data base
+ * 
+ * 
+ * 
+ * @fn vector<vector<double>> CALM::GetXYZ(int Nsum)
+ * @brief Generates XYZ coordinates for each particle (from Gaussian distribution). Returnes vector of vectors for each dimension.
+ * @param [in] Nsum amount of all particles
+ * 
+ * 
+ * 
+ * @fn double CALM::GetTotalEnergy(int Nsum)
+ * @brief Generates energy for each particle (from eventConfig->singleEnergyDistr distribuation) and checks if the sum is not bigger then maximum energy (eventConfig->EtotMax)
+ * @param [in] Nsum amount of all particles
+ * 
+ * 
+ * 
+ * @fn double *CALM::GetMasses(int Nsum, ParticleDB *aPartDB)
+ * @brief Returnes pointer to array filled by masses (read from aPartDB) of particles generated earler in the event
+ * @param [in] Nsum amount of all particles
+ * @param [in] aPartDB pointer to particle data base
+ * 
+ * 
+ * 
+ * @fn void CALM::SeparateJets(int Nsum, vector<double> *masses, vector<string> *names, ParticleDB *aPartDB)
+ * @brief Randomly separate particles into two jets
+ * @param [in] Nsum amount of all particles
+ * @param [out] masses pointer to the array of vectors which will be filled by masses of particles for each jet
+ * @param [out] names pointer to the array of vectors which will be filled by names of particles for each jet
+ * @param [in] aPartDB pointer to particle data base
+ * 
+ * 
+ *
+ * @fn bool CALM::SeparateJets_LOCAL(int Nsum, vector<double> *masses, vector<string> *names, ParticleDB *aPartDB)
+ * @brief Randomly separate particles into two jets and checks ConservAtion Laws for each jet. Returnes true if the check was successful. In case of 
+ * 100 negative control results, method returns false and than CALM repeats whole event from the beginning.
+ * @param [in] Nsum amount of all particles
+ * @param [out] masses pointer to the array of vectors which will be filled by masses of particles for each jet
+ * @param [out] names pointer to the array of vectors which will be filled by names of particles for each jet
+ * @param [in] aPartDB pointer to particle data base
+ * 
+ * 
+ * 
+ * @fn bool CALM::TrySetEventDecay(int Nsum, double *masses, TGenPhaseSpace &event, double &TotEnergy)
+ * @brief Tries to set decay of energy for event. In case of negative control result, CALM repeats whole event from the beginning..
+ * @param [in] Nsum amount of all particles
+ * @param [in] masses pointer to the array which is filled by masses of particles
+ * @param [out] event reference to TGenPhaseSpace
+ * @param [out] TotEnergy reference to variable holding total energy
+ *  
+ * 
+ */

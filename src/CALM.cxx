@@ -635,7 +635,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
       SaveAllParticles_MINIJETS(masses, names, weight0, weight1, TotEnergy, divideEn, XYZrand, event0, event1, aPartDB, aParticles, aEventType);
       delete[] masses;
       delete[] names;
-      delete[] divideEn;
+      //delete[] divideEn;
       break;
    }
    case MINIJETS_LOCAL:
@@ -669,7 +669,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
       SaveAllParticles_MINIJETS(masses, names, weight0, weight1, TotEnergy, divideEn, XYZrand, event0, event1, aPartDB, aParticles, aEventType);
       delete[] masses;
       delete[] names;
-      delete[] divideEn;
+      //delete[] divideEn;
       break;
    }
    case GLOBAL_REGGAE:

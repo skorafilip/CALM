@@ -3,10 +3,10 @@
 #include <TDatime.h>
 
 //string tokenizer, used to separate values from string arrays defined in config.ini file
-vector<string> SplitString(string strarray){
+vector<string> ConfigurationHolder::SplitString(string strarray, char token){
   vector<string> vresult;
   int index;
-  while((index = strarray.find(",")) != string::npos){
+  while((index = strarray.find(token)) != string::npos){
     string strvalue = strarray.substr(0, index);
     strarray.erase(0, index + 1);
     vresult.push_back(strvalue);
@@ -17,11 +17,20 @@ vector<string> SplitString(string strarray){
 }
 
 
-/*ConfigurationHolder::ConfigurationHolder()
-: pythiaMult(0), singleEnergyDistr("0.922477*(TMath::Power(x+2.15717,-1.57383)-1.40499e-05)"), 
-  MinEtot(7000), divideEn(new double[2]{1,1})//, EventsPerFile(10000)
+ConfigurationHolder::ConfigurationHolder()
+: Nmean(new double[4]{1.493,0.183,0.083,0.048}), RapidityInterval(5), XYZ(new double[3]{5.,5.,5.}), pythiaMult(0),
+  pionsMultDistr("0.334508*TMath::Gaus(x,56.8221,23.5326)*(5.97354e-07*x*x*x-8.88401e-05*x*x+0.00434252*x-0.0274243)"), pionsMultDistr_xMin(8), pionsMultDistr_xMax(150),
+  kaonsMultDistr("0.731705*TMath::Gaus(x,15.5239,8.95871)*(1.1963e-05*x*x*x-0.000584791*x*x+0.010377*x-0.00451733)"), kaonsMultDistr_xMin(1), kaonsMultDistr_xMax(50),
+  nucleonsMultDistr("1.37498*TMath::Gaus(x,8.86527,6.11529)*(2.80839e-05*x*x*x-0.00103983*x*x+0.0134321*x-0.0026861)"), nucleonsMultDistr_xMin(1), nucleonsMultDistr_xMax(50),
+  lambdasMultDistr("3.21961*TMath::Gaus(x,1.14316,1.58606)*(0.00221997*x*x*x-0.0125258*x*x+0.00457262*x+0.118927)"), lambdasMultDistr_xMin(0), lambdasMultDistr_xMax(15),
+  singleEnergyDistr("0.922477*(TMath::Power(x+2.15717,-1.57383)-1.40499e-05)"), singleEnergyDistr_xMin(0.4), singleEnergyDistr_xMax(1100),
+  EtotMax(7000), divideEn(new double[2]{1,1})
 {
-}*/
+    TDatime tDate;
+    
+    tDate.Set();
+    PRINT_MESSAGE("["<<tDate.AsSQLString()<<"]\tDefault configuration loaded");
+}
 
 ConfigurationHolder::ConfigurationHolder(Configurator *sMainConfig){
     TDatime tDate;
@@ -31,7 +40,7 @@ ConfigurationHolder::ConfigurationHolder(Configurator *sMainConfig){
 
     try{
       string s = sMainConfig->GetParameter("Nmean").Data();
-      vector<string> vNmean = SplitString(sMainConfig->GetParameter("Nmean").Data());
+      vector<string> vNmean = SplitString(sMainConfig->GetParameter("Nmean").Data(), ',');
       if(vNmean.size()!=4){
         throw *(new TString("Nmean"));
       }
@@ -43,7 +52,7 @@ ConfigurationHolder::ConfigurationHolder(Configurator *sMainConfig){
 
       };
       RapidityInterval = sMainConfig->GetParameter("RapidityInterval").Atoi();
-      vector<string> vXYZ = SplitString(sMainConfig->GetParameter("XYZ").Data());
+      vector<string> vXYZ = SplitString(sMainConfig->GetParameter("XYZ").Data(), ',');
       if(vXYZ.size()!=3){
         throw *(new TString("XYZ"));
       }
@@ -80,7 +89,7 @@ ConfigurationHolder::ConfigurationHolder(Configurator *sMainConfig){
 
       EtotMax = sMainConfig->GetParameter("EtotMax").Atoi();
       
-      vector<string> vdivideEn = SplitString(sMainConfig->GetParameter("divideEn").Data());
+      vector<string> vdivideEn = SplitString(sMainConfig->GetParameter("divideEn").Data(), ',');
       if(vdivideEn.size()!=2){
         throw *(new TString("divideEn"));
       }
@@ -95,3 +104,10 @@ ConfigurationHolder::ConfigurationHolder(Configurator *sMainConfig){
     }
 
 }
+
+ConfigurationHolder::~ConfigurationHolder(){
+  delete [] Nmean;
+  delete [] XYZ;
+  delete [] divideEn;
+}
+
