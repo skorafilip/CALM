@@ -56,9 +56,14 @@ private:
 	// values for this event
 	vector<string> mParticlesThisEvent; ///< List of particle names for one event
 	ConfigurationHolder* eventConfig; ///< ConfigurationHolder with parameters from file
+	int *(CALM::*GetMultiplicitiesOfPartciles)(int, int, int &);
 
 private:
-	int *GetMultiplicitiesOfPartciles(int aMultBinMin, int aMultBinMax, int &Nsum);
+	//one of these methods have to be assaigned into GetMultiplicitiesOfPartciles pointer
+	int *PythiaMult(int aMultBinMin, int aMultBinMax, int &Nsum);
+	int *AlicePoissonMult(int aMultBinMin, int aMultBinMax, int &Nsum);
+	//int *GetMultiplicitiesOfPartciles(int aMultBinMin, int aMultBinMax, int &Nsum);
+
 	void CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, ParticleDB *aPartDB);
 	vector<vector<double>> GetXYZ(int Nsum);
 	double GetTotalEnergy(int Nsum);
@@ -82,10 +87,16 @@ private:
 	void SaveAllParticles_MINIJETS(vector<double> *masses, vector<string> *names, double weight0, double weight1, double TotEnergy, double *divideEn, vector<vector<double>> XYZrand, TGenPhaseSpace event0, TGenPhaseSpace event1, ParticleDB *aPartDB, list<Particle> *aParticles, eEventType aEventType);
 	void SaveAllParticles_GLOBAL_REGGAE(int Nsum, vector4 *avec, vector<vector<double>> XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles);
 	void SaveAllParticles_MINIJETS_REGGAE(vector<double> *masses, vector<string> *names, vector4 *avec0, vector4 *avec1, double TotEnergy, vector<vector<double>> XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles);
+
+
 };
 
 #endif
-
+//  * @fn int *CALM::GetMultiplicitiesOfPartciles(int aMultBinMin, int aMultBinMax, int &Nsum)
+//  * @brief Randomize multiciplity of each kind (pion, etc.) for event and returnes pointer to array of them
+//  * @param [in] aMultBinMin minimum multiplicity of event
+//  * @param [in] aMultBinMax maxiumum multiplicity of event
+//  * @param [out] Nsum reference to the variable holding amount of all particles
 
 /*! @file CALM.h
  * @brief 
@@ -101,7 +112,7 @@ private:
  * @fn CALM::~CALM()
  * @brief Destructor.
  *
- * @fn int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMax, double aEnergy, std::list<Particle> *aParticles, eEventType aEventType = GLOBAL)
+ * @fn int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMax, double aEnergy, list<Particle> *aParticles, eEventType aEventType = GLOBAL)
  * @brief Generates event and saves outcome particles. It returnes 0 if successed and 99 if not.
  * @param [in] aPartDB pointer to ParticleDB
  * @param [in] aMultBinMin minimum multiplicity of event
@@ -114,13 +125,19 @@ private:
  * 
  * 
  * 
- * @fn int *CALM::GetMultiplicitiesOfPartciles(int aMultBinMin, int aMultBinMax, int &Nsum)
- * @brief Randomize multiciplity of each kind (pion, etc.) for event and returnes pointer to array of them
+ * @fn int *CALM::PythiaMult(int aMultBinMin, int aMultBinMax, int &Nsum)
+ * @brief Randomize multiciplity, from Pythia distributions, of each kind (pion, etc.) for event and returnes pointer to array of them
  * @param [in] aMultBinMin minimum multiplicity of event
  * @param [in] aMultBinMax maxiumum multiplicity of event
  * @param [out] Nsum reference to the variable holding amount of all particles
  * 
- *
+ * @fn int *CALM::AlicePoissonMult(int aMultBinMin, int aMultBinMax, int &Nsum)
+ * @brief Randomize multiciplity, from Poisson distributions, of each kind (pion, etc.) for event and returnes pointer to array of them
+ * @param [in] aMultBinMin minimum multiplicity of event
+ * @param [in] aMultBinMax maxiumum multiplicity of event
+ * @param [out] Nsum reference to the variable holding amount of all particles
+ * 
+ * 
  * 
  * @fn void CALM::CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, ParticleDB *aPartDB)
  * @brief Generates the number of specific particles within each kind and check of the charge, strangeness and baryon number
@@ -130,7 +147,7 @@ private:
  * 
  * 
  * 
- * @fn vector<vector<double>> CALM::GetXYZ(int Nsum)
+ * @fn double CALM::GetXYZ(int Nsum)
  * @brief Generates XYZ coordinates for each particle (from Gaussian distribution). Returnes vector of vectors for each dimension.
  * @param [in] Nsum amount of all particles
  * 
@@ -169,11 +186,109 @@ private:
  * 
  * 
  * @fn bool CALM::TrySetEventDecay(int Nsum, double *masses, TGenPhaseSpace &event, double &TotEnergy)
- * @brief Tries to set decay of energy for event. In case of negative control result, CALM repeats whole event from the beginning..
+ * @brief Tries to set decay of energy for event. In case of negative control result, CALM repeats whole event from the beginning.
  * @param [in] Nsum amount of all particles
  * @param [in] masses pointer to the array which is filled by masses of particles
  * @param [out] event reference to TGenPhaseSpace
  * @param [out] TotEnergy reference to variable holding total energy
  *  
  * 
+ *
+ * @fn bool CALM::TrySetEventDecay_MINIJETS(int Nsum, vector<double> *masses, TGenPhaseSpace &event0, TGenPhaseSpace &event1, double &TotEnergy, double *divideEn)
+ * @brief Tries to set decay of energy for minijets. In case of negative control result, CALM repeats whole event from the beginning.
+ * @param [in] Nsum amount of all particles
+ * @param [in] masses pointer to the vector holding two arrays (jets) which are filled by masses of particles
+ * @param [out] event0 reference to TGenPhaseSpace of first jet
+ * @param [out] event1 reference to TGenPhaseSpace of second jet
+ * @param [out] TotEnergy reference to variable holding total energy
+ * @param [in] divideEn pointer to the array of multipliers used to set particles energy and jets boost energy
+ * 
+ * 
+ * 
+ * @fn bool CALM::FilterUnlikelyEvents(TGenPhaseSpace &event, double &weight)
+ * @brief Filters the most unlikely events. If event has too small probability to happen, CALM repeats whole event from the beginning. 
+ * @param [out] event reference to TGenPhaseSpace
+ * @param [out] weight reference to variable holding weight of event
+ * 
+ * 
+ * 
+ * @fn bool CALM::FilterUnlikelyEvents_MINIJETS(TGenPhaseSpace &event0, TGenPhaseSpace &event1, double &weight0, double &weight1)
+ * @brief Filters the most unlikely minijet events. If event has too small probability to happen, CALM repeats whole event from the beginning. 
+ * @param [out] event0 reference to TGenPhaseSpace of first jet
+ * @param [out] event1 reference to TGenPhaseSpace of second jet
+ * @param [out] weight0 reference to variable holding weight of first jet
+ * @param [out] weight1 reference to variable holding weight of second jet
+ * 
+ * 
+ * 
+ * @fn bool CALM::ReggaeNegativeEnergyCheck(int Nsum, double *masses, vector4 en, vector4 *avec)
+ * @brief Sets decay of energy and checks negative energy. If negative energy still occures CALM repeats whole event from the beginning. 
+ * @param [in] Nsum amount of all particles
+ * @param [in] masses pointer to the array which is filled by masses of particles
+ * @param [in] en energy vector
+ * @param [out] avec pointer to array of 4D vectors holding energy for each partible
+ * 
+ * 
+ * 
+ * @fn bool CALM::ReggaeNegativeEnergyCheck_MINIJETS(int Nsum, vector<double> *masses, vector4 en, vector4 *avec0, vector4 *avec1)
+ * @brief Sets decay of energy for each jet and checks negative energy. If negative energy still occures CALM repeats whole event from the beginning. 
+ * @param [in] Nsum amount of all particles
+ * @param [in] masses pointer to the vector holding two arrays (jets) which are filled by masses of particles
+ * @param [in] en energy vector
+ * @param [out] avec0 pointer to array of 4D vectors holding energy for each partible inside first jet
+ * @param [out] avec1 pointer to array of 4D vectors holding energy for each partible inside second jet
+ * 
+ * 
+ * 
+ * @fn void CALM::SaveAllParticles_GLOBAL(int Nsum, double weight, vector<vector<double>> XYZrand, TGenPhaseSpace event, ParticleDB *aPartDB, list<Particle> *aParticles)
+ * @brief Pushes all particles into the array which will be saved to the file (for Genbod GLOBAL)
+ * @param [in] Nsum amount of all particles
+ * @param [in] weight variable holding weight of event
+ * @param [in] XYZrand vector holding XYZ coordinates got from CALM::GetXYZ
+ * @param [in] event event object
+ * @param [in] aPartDB pointer to particle data base
+ * @param [out] aParticles pointer to the list of data for all particles generated in current event
+ * 
+ * 
+ * 
+ * @fn void CALM::SaveAllParticles_MINIJETS(vector<double> *masses, vector<string> *names, double weight0, double weight1, double TotEnergy, double *divideEn,
+ *  vector<vector<double>> XYZrand, TGenPhaseSpace event0, TGenPhaseSpace event1, ParticleDB *aPartDB, list<Particle> *aParticles, eEventType aEventType)
+ * @brief Pushes all particles into the array which will be saved to the file (for Genbod MINIJETS)
+ * @param [in] masses pointer to the array of vectors which will be filled by masses of particles for each jet
+ * @param [in] names pointer to the array of vectors which will be filled by names of particles for each jet
+ * @param [in] weight0 reference to variable holding weight of first jet
+ * @param [in] weight1 reference to variable holding weight of second jet
+ * @param [in] TotEnergy variable holding total energy
+ * @param [in] divideEn pointer to the array of multipliers used to set particles energy and jets boost energy
+ * @param [in] XYZrand vector holding XYZ coordinates got from CALM::GetXYZ
+ * @param [in] event0 event object for first jet
+ * @param [in] event1 event object for second jet
+ * @param [in] aPartDB pointer to particle data base
+ * @param [out] aParticles pointer to the list of data for all particles generated in current event
+ * @param [in] aEventType enum that specifies which CALM option will be performed
+ * 
+ * 
+ * 
+ * @fn void CALM::SaveAllParticles_GLOBAL_REGGAE(int Nsum, vector4 *avec, vector<vector<double>> XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles)
+ * @brief Pushes all particles into the array which will be saved to the file (for REGGAE GLOBAL)
+ * @param [in] Nsum amount of all particles
+ * @param [in] avec pointer to array of 4D vectors holding energy for each partible
+ * @param [in] XYZrand vector holding XYZ coordinates got from CALM::GetXYZ
+ * @param [in] aPartDB pointer to particle data base
+ * @param [out] aParticles pointer to the list of data for all particles generated in current event
+ * 
+ * 
+ * 
+ * @fn void CALM::SaveAllParticles_MINIJETS_REGGAE(vector<double> *masses, vector<string> *names, vector4 *avec0, vector4 *avec1, double TotEnergy,
+ *  vector<vector<double>> XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles)
+ * @brief Pushes all particles into the array which will be saved to the file (for REGGAE MINIJETS)
+ * @param [in] masses pointer to the array of vectors which will be filled by masses of particles for each jet
+ * @param [in] names pointer to the array of vectors which will be filled by names of particles for each jet
+ * @param [in] avec0 pointer to array of 4D vectors holding energy for each partible inside first jet
+ * @param [in] avec1 pointer to array of 4D vectors holding energy for each partible inside second jet
+ * @param [in] TotEnergy variable holding total energy
+ * @param [in] XYZrand vector holding XYZ coordinates got from CALM::GetXYZ
+ * @param [in] aPartDB pointer to particle data base
+ * @param [out] aParticles pointer to the list of data for all particles generated in current event
+ *  
  */

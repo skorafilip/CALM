@@ -2483,3 +2483,4 @@ build/latex/structParameter.tex
 build/latex/structStructEvent.tex
 build/latex/tabu_doxygen.sty
 build/latex/THGlobal_8h.tex
+include/StructEvent.h

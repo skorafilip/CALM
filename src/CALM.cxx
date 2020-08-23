@@ -26,51 +26,56 @@ void AddParticleSums(int &Qsum, int &Ssum, int &Bsum, string particleName, Parti
       Ssum++;
 }
 
-int *CALM::GetMultiplicitiesOfPartciles(int aMultBinMin, int aMultBinMax, int &Nsum)
+
+int *CALM::PythiaMult(int aMultBinMin, int aMultBinMax, int &Nsum)
 {
    int *Nrand = new int[mNpart];
    int pythiaMult = eventConfig->pythiaMult;
 
-   if (pythiaMult == 1)
+   pionsMultDistr = new TF1("pionsMultDistr", eventConfig->pionsMultDistr.c_str(), eventConfig->pionsMultDistr_xMin, eventConfig->pionsMultDistr_xMax);
+   kaonsMultDistr = new TF1("kaonsMultDistr", eventConfig->kaonsMultDistr.c_str(), eventConfig->kaonsMultDistr_xMin, eventConfig->kaonsMultDistr_xMax);
+   nucleonsMultDistr = new TF1("nucleonsMultDistr", eventConfig->nucleonsMultDistr.c_str(), eventConfig->nucleonsMultDistr_xMin, eventConfig->nucleonsMultDistr_xMax);
+   lambdasMultDistr = new TF1("lambdasMultDistr", eventConfig->lambdasMultDistr.c_str(), eventConfig->lambdasMultDistr_xMin, eventConfig->lambdasMultDistr_xMax);
+   // generating the number of particles in each kind
+   do
    {
-      pionsMultDistr = new TF1("pionsMultDistr", eventConfig->pionsMultDistr.c_str(), eventConfig->pionsMultDistr_xMin, eventConfig->pionsMultDistr_xMax);
-      kaonsMultDistr = new TF1("kaonsMultDistr", eventConfig->kaonsMultDistr.c_str(), eventConfig->kaonsMultDistr_xMin, eventConfig->kaonsMultDistr_xMax);
-      nucleonsMultDistr = new TF1("nucleonsMultDistr", eventConfig->nucleonsMultDistr.c_str(), eventConfig->nucleonsMultDistr_xMin, eventConfig->nucleonsMultDistr_xMax);
-      lambdasMultDistr = new TF1("lambdasMultDistr", eventConfig->lambdasMultDistr.c_str(), eventConfig->lambdasMultDistr_xMin, eventConfig->lambdasMultDistr_xMax);
-      // generating the number of particles in each kind
-      do
-      {
-         Nsum = 0;
-         Nrand[0] = pionsMultDistr->GetRandom();
-         Nrand[1] = kaonsMultDistr->GetRandom();
-         Nrand[2] = nucleonsMultDistr->GetRandom();
-         Nrand[3] = lambdasMultDistr->GetRandom();
-         Nsum = Nrand[0] + Nrand[1] + Nrand[2] + Nrand[3];
-      } while (Nsum < aMultBinMin || Nsum > aMultBinMax || (Nrand[1] + Nrand[3]) % 2 != 0 || (Nrand[2] + Nrand[3]) % 2 != 0);
-      delete pionsMultDistr;
-      delete kaonsMultDistr;
-      delete nucleonsMultDistr;
-      delete lambdasMultDistr;
-   }
-   else
+      Nsum = 0;
+      Nrand[0] = pionsMultDistr->GetRandom();
+      Nrand[1] = kaonsMultDistr->GetRandom();
+      Nrand[2] = nucleonsMultDistr->GetRandom();
+      Nrand[3] = lambdasMultDistr->GetRandom();
+      Nsum = Nrand[0] + Nrand[1] + Nrand[2] + Nrand[3];
+   } while (Nsum < aMultBinMin || Nsum > aMultBinMax || (Nrand[1] + Nrand[3]) % 2 != 0 || (Nrand[2] + Nrand[3]) % 2 != 0);
+   delete pionsMultDistr;
+   delete kaonsMultDistr;
+   delete nucleonsMultDistr;
+   delete lambdasMultDistr;
+
+   return Nrand;
+}
+
+int *CALM::AlicePoissonMult(int aMultBinMin, int aMultBinMax, int &Nsum)
+{
+   int *Nrand = new int[mNpart];
+   int pythiaMult = eventConfig->pythiaMult;
+
+   do
    {
-      do
+      Nsum = 0;
+      for (int i = 0; i < mNpart; ++i)
       {
-         Nsum = 0;
-         for (int i = 0; i < mNpart; ++i)
-         {
-            Nrand[i] = mRandom->Poisson(mNmean[i] * mRapidityInterval * mNpartkinds[i]);
-            Nsum += Nrand[i];
-         }
-      } while (Nsum < aMultBinMin || Nsum > aMultBinMax || (Nrand[1] + Nrand[3]) % 2 != 0 || (Nrand[2] + Nrand[3]) % 2 != 0);
-   }
+         Nrand[i] = mRandom->Poisson(mNmean[i] * mRapidityInterval * mNpartkinds[i]);
+         Nsum += Nrand[i];
+      }
+   } while (Nsum < aMultBinMin || Nsum > aMultBinMax || (Nrand[1] + Nrand[3]) % 2 != 0 || (Nrand[2] + Nrand[3]) % 2 != 0);
+
    return Nrand;
 }
 
 void CALM::CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, ParticleDB *aPartDB)
 {
    int Qsum, Bsum, Ssum;
-   
+
    ParticleType *tParticleType;
    do
    {
@@ -142,7 +147,7 @@ void CALM::SeparateJets(int Nsum, vector<double> *masses, vector<string> *names,
       }
       for (int i = 0; i < Nsum; ++i)
       {
-         
+
          if (mRandom->Integer(2))
          {
             masses[1].push_back(aPartDB->GetParticleType(mParticlesThisEvent[i].c_str())->GetMass());
@@ -509,7 +514,7 @@ void CALM::SaveAllParticles_MINIJETS_REGGAE(vector<double> *masses, vector<strin
 CALM::CALM() : mRandom(0), mNames(0), mNmean(0)
 {
    //FILIPS: tutaj odpalamy Configurator który wczytuje dane a następnie ładujemy je do ConfigurationHolder, który jest polem klasy CALM więc trzyma dane przez cały czas działąnia programu
-   Configurator* newConfig = new Configurator("./config.ini");
+   Configurator *newConfig = new Configurator("./config.ini");
    newConfig->ReadParameters();
    eventConfig = new ConfigurationHolder(newConfig);
 
@@ -526,10 +531,10 @@ CALM::CALM() : mRandom(0), mNames(0), mNmean(0)
        "pr0938plu", "pr0938plb", "ne0939zer", "ne0939zrb",
        "Lm1115zer", "Lm1115zrb"};
    int it = 0;
-   mNmean = eventConfig->Nmean;//new double[mNpart];
+   mNmean = eventConfig->Nmean; //new double[mNpart];
    mNpartkinds = new int[mNpart];
    mNames = new string *[mNpart];
-   mRapidityInterval = eventConfig->RapidityInterval;//RapidityInterval;
+   mRapidityInterval = eventConfig->RapidityInterval; //RapidityInterval;
    for (int i = 0; i < mNpart; i++)
    {
       //mNmean[i] = Nmean[i];
@@ -542,7 +547,14 @@ CALM::CALM() : mRandom(0), mNames(0), mNmean(0)
          it++;
       }
    }
-   mXYZ = eventConfig->XYZ;//new double[3];
+   mXYZ = eventConfig->XYZ; //new double[3];
+
+   if(eventConfig->pythiaMult==1){
+      GetMultiplicitiesOfPartciles = &CALM::PythiaMult;
+   }
+   else{
+      GetMultiplicitiesOfPartciles = &CALM::AlicePoissonMult;
+   }
    /*for (int i = 0; i < 3; i++)
       mXYZ[i] = XYZ[i];*/
 }
@@ -562,7 +574,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
    //_______distributing the total number of particles for each kind and for the specific particles
    //_______GLOBAL CONSERVATION LAWS - or one minijet for minijets with local conservation
 
-   Nrand = GetMultiplicitiesOfPartciles(aMultBinMin, aMultBinMax, Nsum);
+   Nrand = (this->*GetMultiplicitiesOfPartciles)(aMultBinMin, aMultBinMax, Nsum);
 
    CheckConservAtionLaws(Nrand, Npart, aPartDB);
 
@@ -652,7 +664,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
 
       TLorentzVector *tmp;
       TLorentzVector en;
-      double *divideEn = eventConfig->divideEn;//new double[2]{1, 1}; // 0: energy of particles, 1: boostenergy
+      double *divideEn = eventConfig->divideEn; //new double[2]{1, 1}; // 0: energy of particles, 1: boostenergy
       if (!TrySetEventDecay_MINIJETS(Nsum, masses, event0, event1, TotEnergy, divideEn))
       {
          mParticlesThisEvent.clear();
