@@ -5,20 +5,20 @@ extern Configurator *sMainConfig;
 void AddParticleSums(int &Qsum, int &Ssum, int &Bsum, string particleName, ParticleType *tParticleType)
 {
    int tmpInt;
-   //zsumowanie ladunku
+   //charge check
    if (particleName.find("plu") != std::string::npos)
       Qsum++;
    else if (particleName.find("min") != std::string::npos || particleName.find("plb") != std::string::npos)
       Qsum--;
    else if (particleName.find("zer") != std::string::npos || particleName.find("zrb") != std::string::npos)
       ;
-   //policzenie liczby kwarkow i sprawdzenie czy wychodzi barion czy antybarion
+   //barion number check
    tmpInt = tParticleType->GetNumberQ() - tParticleType->GetNumberAQ() + tParticleType->GetNumberS() - tParticleType->GetNumberAS();
    if (tmpInt == 3)
       Bsum++;
    else if (tmpInt == -3)
       Bsum--;
-   //policzenie dziwnosci
+   //strangeness check
    tmpInt = tParticleType->GetNumberS() - tParticleType->GetNumberAS();
    if (tmpInt == 1)
       Ssum--; //  for quark s: S=-1
@@ -72,11 +72,16 @@ int *CALM::AlicePoissonMult(int aMultBinMin, int aMultBinMax, int &Nsum)
    return Nrand;
 }
 
-void CALM::CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, ParticleDB *aPartDB)
+int **CALM::GetTypesForParticles(int *Nrand, ParticleDB *aPartDB)
 {
    int Qsum, Bsum, Ssum;
 
    ParticleType *tParticleType;
+
+   int **Npart = new int*[mNpart];
+   for(int i = 0; i < mNpart; i++)
+     Npart[i] = new int[Nrand[i]];
+
    do
    {
       Qsum = 0;
@@ -95,6 +100,8 @@ void CALM::CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, Particl
          }
       }
    } while (Qsum != 0 || Ssum != 0 || Bsum != 0);
+
+   return Npart;
 }
 
 vector<vector<double>> CALM::GetXYZ(int Nsum)
@@ -568,15 +575,18 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
    // number of particles generated (for each kind) - from Poisson distribution
    int *Nrand;
 
-   vector<vector<int>> Npart(mNpart, vector<int>(aMultBinMax)); //int Npart[mNpart][aMultBinMax]; // particle to be generated
-
+   int** Npart;// = new int*[mNpart];
+   //for(int i = 0; i < mNpart; i++)
+   //   Npart[i] = new int[aMultBinMax];
+   //vector<vector<int>> Npart(mNpart, vector<int>(aMultBinMax)); //int Npart[mNpart][aMultBinMax]; // particle to be generated
+   
    int Nsum;
    //_______distributing the total number of particles for each kind and for the specific particles
    //_______GLOBAL CONSERVATION LAWS - or one minijet for minijets with local conservation
 
    Nrand = (this->*GetMultiplicitiesOfPartciles)(aMultBinMin, aMultBinMax, Nsum);
 
-   CheckConservAtionLaws(Nrand, Npart, aPartDB);
+   Npart = GetTypesForParticles(Nrand, aPartDB);
 
    //________rewriting the particles into one list
    for (int i = 0; i < mNpart; ++i)

@@ -64,7 +64,7 @@ private:
 	int *AlicePoissonMult(int aMultBinMin, int aMultBinMax, int &Nsum);
 	//int *GetMultiplicitiesOfPartciles(int aMultBinMin, int aMultBinMax, int &Nsum);
 
-	void CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, ParticleDB *aPartDB);
+	int **GetTypesForParticles(int *Nrand, ParticleDB *aPartDB);
 	vector<vector<double>> GetXYZ(int Nsum);
 	double GetTotalEnergy(int Nsum);
 
@@ -139,11 +139,11 @@ private:
  * 
  * 
  * 
- * @fn void CALM::CheckConservAtionLaws(int *Nrand, vector<vector<int>> &Npart, ParticleDB *aPartDB)
- * @brief Generates the number of specific particles within each kind and check of the charge, strangeness and baryon number
+ * @fn void CALM::GetTypesForParticles(int *Nrand, ParticleDB *aPartDB)
+ * @brief Generates type for each particle and checks of the charge, strangeness and baryon number. Returnes pointer to array of pointers (particles) to the type
  * @param [in] Nrand pointer to array returned by CALM::GetMultiplicitiesOfPartciles()
- * @param [out] Npart reference to the vector holding vectors of types (pion+, pion-, etc..) for each kind (pion, kaon, etc...)
  * @param [in] aPartDB pointer to particle data base
+ * 
  * 
  * 
  * 
