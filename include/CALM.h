@@ -65,7 +65,7 @@ private:
 	//int *GetMultiplicitiesOfPartciles(int aMultBinMin, int aMultBinMax, int &Nsum);
 
 	int **GetTypesForParticles(int *Nrand, ParticleDB *aPartDB);
-	vector<vector<double>> GetXYZ(int Nsum);
+	double **GetXYZ(int Nsum);
 	double GetTotalEnergy(int Nsum);
 
 	double *GetMasses(int Nsum, ParticleDB *aPartDB);
@@ -83,10 +83,10 @@ private:
 	bool ReggaeNegativeEnergyCheck(int Nsum, double *masses, vector4 en, vector4 *avec);
 	bool ReggaeNegativeEnergyCheck_MINIJETS(int Nsum, vector<double> *masses, vector4 en, vector4 *avec0, vector4 *avec1);
 
-	void SaveAllParticles_GLOBAL(int Nsum, double weight, vector<vector<double>> XYZrand, TGenPhaseSpace event, ParticleDB *aPartDB, list<Particle> *aParticles);
-	void SaveAllParticles_MINIJETS(vector<double> *masses, vector<string> *names, double weight0, double weight1, double TotEnergy, double *divideEn, vector<vector<double>> XYZrand, TGenPhaseSpace event0, TGenPhaseSpace event1, ParticleDB *aPartDB, list<Particle> *aParticles, eEventType aEventType);
-	void SaveAllParticles_GLOBAL_REGGAE(int Nsum, vector4 *avec, vector<vector<double>> XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles);
-	void SaveAllParticles_MINIJETS_REGGAE(vector<double> *masses, vector<string> *names, vector4 *avec0, vector4 *avec1, double TotEnergy, vector<vector<double>> XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles);
+	void SaveAllParticles_GLOBAL(int Nsum, double weight, double **XYZrand, TGenPhaseSpace event, ParticleDB *aPartDB, list<Particle> *aParticles);
+	void SaveAllParticles_MINIJETS(vector<double> *masses, vector<string> *names, double weight0, double weight1, double TotEnergy, double *divideEn, double **XYZrand, TGenPhaseSpace event0, TGenPhaseSpace event1, ParticleDB *aPartDB, list<Particle> *aParticles, eEventType aEventType);
+	void SaveAllParticles_GLOBAL_REGGAE(int Nsum, vector4 *avec, double **XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles);
+	void SaveAllParticles_MINIJETS_REGGAE(vector<double> *masses, vector<string> *names, vector4 *avec0, vector4 *avec1, double TotEnergy, double **XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles);
 
 
 };
@@ -240,11 +240,11 @@ private:
  * 
  * 
  * 
- * @fn void CALM::SaveAllParticles_GLOBAL(int Nsum, double weight, vector<vector<double>> XYZrand, TGenPhaseSpace event, ParticleDB *aPartDB, list<Particle> *aParticles)
+ * @fn void CALM::SaveAllParticles_GLOBAL(int Nsum, double weight, double **XYZrand, TGenPhaseSpace event, ParticleDB *aPartDB, list<Particle> *aParticles)
  * @brief Pushes all particles into the array which will be saved to the file (for Genbod GLOBAL)
  * @param [in] Nsum amount of all particles
  * @param [in] weight variable holding weight of event
- * @param [in] XYZrand vector holding XYZ coordinates got from CALM::GetXYZ
+ * @param [in] XYZrand array holding XYZ vertex coordinates got from CALM::GetXYZ
  * @param [in] event event object
  * @param [in] aPartDB pointer to particle data base
  * @param [out] aParticles pointer to the list of data for all particles generated in current event
@@ -252,7 +252,7 @@ private:
  * 
  * 
  * @fn void CALM::SaveAllParticles_MINIJETS(vector<double> *masses, vector<string> *names, double weight0, double weight1, double TotEnergy, double *divideEn,
- *  vector<vector<double>> XYZrand, TGenPhaseSpace event0, TGenPhaseSpace event1, ParticleDB *aPartDB, list<Particle> *aParticles, eEventType aEventType)
+ *  double **XYZrand, TGenPhaseSpace event0, TGenPhaseSpace event1, ParticleDB *aPartDB, list<Particle> *aParticles, eEventType aEventType)
  * @brief Pushes all particles into the array which will be saved to the file (for Genbod MINIJETS)
  * @param [in] masses pointer to the array of vectors which will be filled by masses of particles for each jet
  * @param [in] names pointer to the array of vectors which will be filled by names of particles for each jet
@@ -260,7 +260,7 @@ private:
  * @param [in] weight1 reference to variable holding weight of second jet
  * @param [in] TotEnergy variable holding total energy
  * @param [in] divideEn pointer to the array of multipliers used to set particles energy and jets boost energy
- * @param [in] XYZrand vector holding XYZ coordinates got from CALM::GetXYZ
+ * @param [in] XYZrand array holding XYZ vertex coordinates got from CALM::GetXYZ
  * @param [in] event0 event object for first jet
  * @param [in] event1 event object for second jet
  * @param [in] aPartDB pointer to particle data base
@@ -269,25 +269,25 @@ private:
  * 
  * 
  * 
- * @fn void CALM::SaveAllParticles_GLOBAL_REGGAE(int Nsum, vector4 *avec, vector<vector<double>> XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles)
+ * @fn void CALM::SaveAllParticles_GLOBAL_REGGAE(int Nsum, vector4 *avec, double **XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles)
  * @brief Pushes all particles into the array which will be saved to the file (for REGGAE GLOBAL)
  * @param [in] Nsum amount of all particles
  * @param [in] avec pointer to array of 4D vectors holding energy for each partible
- * @param [in] XYZrand vector holding XYZ coordinates got from CALM::GetXYZ
+ * @param [in] XYZrand array holding XYZ vertex coordinates got from CALM::GetXYZ
  * @param [in] aPartDB pointer to particle data base
  * @param [out] aParticles pointer to the list of data for all particles generated in current event
  * 
  * 
  * 
  * @fn void CALM::SaveAllParticles_MINIJETS_REGGAE(vector<double> *masses, vector<string> *names, vector4 *avec0, vector4 *avec1, double TotEnergy,
- *  vector<vector<double>> XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles)
+ *  double **XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles)
  * @brief Pushes all particles into the array which will be saved to the file (for REGGAE MINIJETS)
  * @param [in] masses pointer to the array of vectors which will be filled by masses of particles for each jet
  * @param [in] names pointer to the array of vectors which will be filled by names of particles for each jet
  * @param [in] avec0 pointer to array of 4D vectors holding energy for each partible inside first jet
  * @param [in] avec1 pointer to array of 4D vectors holding energy for each partible inside second jet
  * @param [in] TotEnergy variable holding total energy
- * @param [in] XYZrand vector holding XYZ coordinates got from CALM::GetXYZ
+ * @param [in] XYZrand array holding XYZ vertex coordinates got from CALM::GetXYZ
  * @param [in] aPartDB pointer to particle data base
  * @param [out] aParticles pointer to the list of data for all particles generated in current event
  *  

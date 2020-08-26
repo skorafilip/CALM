@@ -104,11 +104,12 @@ int **CALM::GetTypesForParticles(int *Nrand, ParticleDB *aPartDB)
    return Npart;
 }
 
-vector<vector<double>> CALM::GetXYZ(int Nsum)
+double ** CALM::GetXYZ(int Nsum)
 {
-   vector<vector<double>> XYZrand(Nsum, vector<double>(3));
+   double ** XYZrand = new double*[Nsum];
    for (int j = 0; j < Nsum; ++j)
    {
+      XYZrand[j] = new double[3];
       for (int i = 0; i < 3; ++i)
       {
          XYZrand[j][i] = mRandom->Gaus(0, mXYZ[i]);
@@ -383,7 +384,7 @@ bool CALM::ReggaeNegativeEnergyCheck_MINIJETS(int Nsum, vector<double> *masses, 
    return checkE;
 }
 
-void CALM::SaveAllParticles_GLOBAL(int Nsum, double weight, vector<vector<double>> XYZrand, TGenPhaseSpace event, ParticleDB *aPartDB, list<Particle> *aParticles)
+void CALM::SaveAllParticles_GLOBAL(int Nsum, double weight, double **XYZrand, TGenPhaseSpace event, ParticleDB *aPartDB, list<Particle> *aParticles)
 {
    Particle *tParticle;
    TLorentzVector *tmp;
@@ -401,7 +402,7 @@ void CALM::SaveAllParticles_GLOBAL(int Nsum, double weight, vector<vector<double
    }
 }
 
-void CALM::SaveAllParticles_MINIJETS(vector<double> *masses, vector<string> *names, double weight0, double weight1, double TotEnergy, double *divideEn, vector<vector<double>> XYZrand, TGenPhaseSpace event0, TGenPhaseSpace event1, ParticleDB *aPartDB, list<Particle> *aParticles, eEventType aEventType)
+void CALM::SaveAllParticles_MINIJETS(vector<double> *masses, vector<string> *names, double weight0, double weight1, double TotEnergy, double *divideEn, double **XYZrand, TGenPhaseSpace event0, TGenPhaseSpace event1, ParticleDB *aPartDB, list<Particle> *aParticles, eEventType aEventType)
 {
    double phi, eta, theta, p1[3], p2[3], Ejet1, Ejet2;
    phi = mRandom->Uniform(0, 2 * TMath::Pi());
@@ -453,7 +454,7 @@ void CALM::SaveAllParticles_MINIJETS(vector<double> *masses, vector<string> *nam
    }
 }
 
-void CALM::SaveAllParticles_GLOBAL_REGGAE(int Nsum, vector4 *avec, vector<vector<double>> XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles)
+void CALM::SaveAllParticles_GLOBAL_REGGAE(int Nsum, vector4 *avec, double **XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles)
 {
    Particle *tParticle;
    TLorentzVector *tmp = new TLorentzVector();
@@ -474,7 +475,7 @@ void CALM::SaveAllParticles_GLOBAL_REGGAE(int Nsum, vector4 *avec, vector<vector
    }
 }
 
-void CALM::SaveAllParticles_MINIJETS_REGGAE(vector<double> *masses, vector<string> *names, vector4 *avec0, vector4 *avec1, double TotEnergy, vector<vector<double>> XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles)
+void CALM::SaveAllParticles_MINIJETS_REGGAE(vector<double> *masses, vector<string> *names, vector4 *avec0, vector4 *avec1, double TotEnergy, double **XYZrand, ParticleDB *aPartDB, list<Particle> *aParticles)
 {
 
    double phi, eta, theta, p1[3], p2[3], Ejet1, Ejet2;
@@ -598,7 +599,7 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
    }
 
    //________XYZ generating
-   vector<vector<double>> XYZrand = GetXYZ(Nsum);
+   double **XYZrand = GetXYZ(Nsum);
 
    //________Energy generating
    Etot = GetTotalEnergy(Nsum);
@@ -794,6 +795,12 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
    }
    }
    delete[] Nrand;
+   for(int i = 0; i < mNpart; i++)
+      delete[] Npart[i];
+   delete[] Npart;
+   for(int i = 0; i < Nsum; i++)
+      delete[] XYZrand[i];
+   delete[] XYZrand;
    mParticlesThisEvent.clear();
    return 0;
 }
