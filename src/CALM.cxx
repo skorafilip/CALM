@@ -118,9 +118,9 @@ double ** CALM::GetXYZ(int Nsum)
    return XYZrand;
 }
 
-double CALM::GetTotalEnergy(int Nsum)
+void CALM::SetTotalEnergy(int Nsum)
 {
-   double Etot;
+   //double Etot;
    singleEnergyDistr = new TF1("singleEnergyDistr", eventConfig->singleEnergyDistr.c_str(), eventConfig->singleEnergyDistr_xMin, eventConfig->singleEnergyDistr_xMax);
    do
    {
@@ -129,7 +129,7 @@ double CALM::GetTotalEnergy(int Nsum)
          Etot += singleEnergyDistr->GetRandom(eventConfig->singleEnergyDistr_xMin, eventConfig->singleEnergyDistr_xMax);
    } while (Etot > eventConfig->EtotMax);
    delete singleEnergyDistr;
-   return Etot;
+   //return Etot;
 }
 
 double *CALM::GetMasses(int Nsum, ParticleDB *aPartDB)
@@ -602,12 +602,11 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
    double **XYZrand = GetXYZ(Nsum);
 
    //________Energy generating
-   Etot = GetTotalEnergy(Nsum);
+   SetTotalEnergy(Nsum);
 
    //________Genbod part
    // generate total momentum for given energy
    double TotEnergy;
-   int control = 0;
    switch (aEventType)
    {
    case GLOBAL:

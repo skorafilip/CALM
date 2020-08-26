@@ -66,7 +66,7 @@ private:
 
 	int **GetTypesForParticles(int *Nrand, ParticleDB *aPartDB);
 	double **GetXYZ(int Nsum);
-	double GetTotalEnergy(int Nsum);
+	void SetTotalEnergy(int Nsum);
 
 	double *GetMasses(int Nsum, ParticleDB *aPartDB);
 
