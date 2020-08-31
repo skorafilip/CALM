@@ -10,7 +10,7 @@ class ConfigurationHolder {
 	
 	public:
         ConfigurationHolder();
-        ConfigurationHolder(Configurator *sMainConfig);
+        ConfigurationHolder(Configurator *config);
         ~ConfigurationHolder();
 
         int pythiaMult; ///< %Parameter that determines if pythia distribution will be used 
@@ -35,7 +35,7 @@ class ConfigurationHolder {
         double singleEnergyDistr_xMin; ///< Energy distribution function minimum range for for all particles 
         double singleEnergyDistr_xMax;///< Energy distribution function maximum range for for all particles 
 
-        int EtotMax; ///< Total energy of all particles
+        //int EtotMax; ///< Total energy of all particles
         double* divideEn; ///< Energy divider - divideEn[0]: energy of particles, divideEn[1]: boostenergy
 
   private:
@@ -55,9 +55,9 @@ class ConfigurationHolder {
  * @fn ConfigurationHolder::ConfigurationHolder()
  * @brief Default constructor.
  *
- * @fn ConfigurationHolder::ConfigurationHolder(Configurator *sMainConfig)
+ * @fn ConfigurationHolder::ConfigurationHolder(Configurator *config)
  * @brief Reads specified parameters from given Configurator.
- * @param [in] sMainConfig pointer to Configurator
+ * @param [in] config pointer to Configurator
  *
  * @fn ConfigurationHolder::~ConfigurationHolder()
  * @brief Destructor.

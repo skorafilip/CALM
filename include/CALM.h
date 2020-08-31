@@ -56,17 +56,16 @@ private:
 	// values for this event
 	vector<string> mParticlesThisEvent; ///< List of particle names for one event
 	ConfigurationHolder* eventConfig; ///< ConfigurationHolder with parameters from file
-	int *(CALM::*GetMultiplicitiesOfPartciles)(int, int, int &);
+	int *(CALM::*GetMultiplicitiesOfPartciles)(int, int, int &); ///< Pointer to the function generating amount of particles: PythiaMult or AlicePoissonMult
 
 private:
 	//one of these methods have to be assaigned into GetMultiplicitiesOfPartciles pointer
 	int *PythiaMult(int aMultBinMin, int aMultBinMax, int &Nsum);
 	int *AlicePoissonMult(int aMultBinMin, int aMultBinMax, int &Nsum);
-	//int *GetMultiplicitiesOfPartciles(int aMultBinMin, int aMultBinMax, int &Nsum);
 
 	int **GetTypesForParticles(int *Nrand, ParticleDB *aPartDB);
-	double **GetXYZ(int Nsum);
-	void SetTotalEnergy(int Nsum);
+	double **GetVertexXYZ(int Nsum);
+	void SetTotalEnergy(int Nsum, double aEnergy);
 
 	double *GetMasses(int Nsum, ParticleDB *aPartDB);
 
@@ -92,14 +91,10 @@ private:
 };
 
 #endif
-//  * @fn int *CALM::GetMultiplicitiesOfPartciles(int aMultBinMin, int aMultBinMax, int &Nsum)
-//  * @brief Randomize multiciplity of each kind (pion, etc.) for event and returnes pointer to array of them
-//  * @param [in] aMultBinMin minimum multiplicity of event
-//  * @param [in] aMultBinMax maxiumum multiplicity of event
-//  * @param [out] Nsum reference to the variable holding amount of all particles
+
 
 /*! @file CALM.h
- * @brief 
+ * @brief Representation of the program, handles all aspects of simulation.
  */
 /*! @class CALM
  * @brief Representation of the program, handles all aspects of simulation.
@@ -117,7 +112,7 @@ private:
  * @param [in] aPartDB pointer to ParticleDB
  * @param [in] aMultBinMin minimum multiplicity of event
  * @param [in] aMultBinMax maxiumum multiplicity of event
- * @param [in] aEnergy ten parametr jest wyczytywany ale nie jest nigdzie używany
+ * @param [in] aEnergy maximum energy of event
  * @param [out] aParticles pointer to list<Particle> which contains all particle data generated in one event
  * @param [in] aEventType enum that specifies which CALM option will be performed
  * @retval 0 if simulation is correctly completed
@@ -129,13 +124,13 @@ private:
  * @brief Randomize multiciplity, from Pythia distributions, of each kind (pion, etc.) for event and returnes pointer to array of them
  * @param [in] aMultBinMin minimum multiplicity of event
  * @param [in] aMultBinMax maxiumum multiplicity of event
- * @param [out] Nsum reference to the variable holding amount of all particles
+ * @param [out] Nsum reference to the variable holding amount of particles within event
  * 
  * @fn int *CALM::AlicePoissonMult(int aMultBinMin, int aMultBinMax, int &Nsum)
  * @brief Randomize multiciplity, from Poisson distributions, of each kind (pion, etc.) for event and returnes pointer to array of them
  * @param [in] aMultBinMin minimum multiplicity of event
  * @param [in] aMultBinMax maxiumum multiplicity of event
- * @param [out] Nsum reference to the variable holding amount of all particles
+ * @param [out] Nsum reference to the variable holding amount of particles within event
  * 
  * 
  * 
@@ -147,15 +142,16 @@ private:
  * 
  * 
  * 
- * @fn double CALM::GetXYZ(int Nsum)
- * @brief Generates XYZ coordinates for each particle (from Gaussian distribution). Returnes vector of vectors for each dimension.
+ * @fn double CALM::GetVertexXYZ(int Nsum)
+ * @brief Generates XYZ vertex coordinates for each particle (from Gaussian distribution). Returnes array of arrays for each dimension.
  * @param [in] Nsum amount of all particles
  * 
  * 
  * 
- * @fn double CALM::GetTotalEnergy(int Nsum)
- * @brief Generates energy for each particle (from eventConfig->singleEnergyDistr distribuation) and checks if the sum is not bigger then maximum energy (eventConfig->EtotMax)
+ * @fn double CALM::GetTotalEnergy(int Nsum, double aEnergy)
+ * @brief Generates energy for each particle (from eventConfig->singleEnergyDistr distribuation) and checks if the sum is not bigger then maximum energy
  * @param [in] Nsum amount of all particles
+ * @param [in] aEnergy maximum energy of event
  * 
  * 
  * 

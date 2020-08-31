@@ -1,6 +1,6 @@
 #include "CALM.h"
 
-extern Configurator *sMainConfig;
+//extern Configurator *sMainConfig;
 
 void AddParticleSums(int &Qsum, int &Ssum, int &Bsum, string particleName, ParticleType *tParticleType)
 {
@@ -29,6 +29,7 @@ void AddParticleSums(int &Qsum, int &Ssum, int &Bsum, string particleName, Parti
 
 int *CALM::PythiaMult(int aMultBinMin, int aMultBinMax, int &Nsum)
 {
+   // number of particles generated (for each kind) - from Pytia distribution
    int *Nrand = new int[mNpart];
    int pythiaMult = eventConfig->pythiaMult;
 
@@ -56,6 +57,7 @@ int *CALM::PythiaMult(int aMultBinMin, int aMultBinMax, int &Nsum)
 
 int *CALM::AlicePoissonMult(int aMultBinMin, int aMultBinMax, int &Nsum)
 {
+   // number of particles generated (for each kind) - from Poisson distribution
    int *Nrand = new int[mNpart];
    int pythiaMult = eventConfig->pythiaMult;
 
@@ -104,7 +106,7 @@ int **CALM::GetTypesForParticles(int *Nrand, ParticleDB *aPartDB)
    return Npart;
 }
 
-double ** CALM::GetXYZ(int Nsum)
+double ** CALM::GetVertexXYZ(int Nsum)
 {
    double ** XYZrand = new double*[Nsum];
    for (int j = 0; j < Nsum; ++j)
@@ -118,7 +120,7 @@ double ** CALM::GetXYZ(int Nsum)
    return XYZrand;
 }
 
-void CALM::SetTotalEnergy(int Nsum)
+void CALM::SetTotalEnergy(int Nsum, double aEnergy)
 {
    //double Etot;
    singleEnergyDistr = new TF1("singleEnergyDistr", eventConfig->singleEnergyDistr.c_str(), eventConfig->singleEnergyDistr_xMin, eventConfig->singleEnergyDistr_xMax);
@@ -127,7 +129,7 @@ void CALM::SetTotalEnergy(int Nsum)
       Etot = 0.;
       for (int i = 0; i < Nsum; ++i)
          Etot += singleEnergyDistr->GetRandom(eventConfig->singleEnergyDistr_xMin, eventConfig->singleEnergyDistr_xMax);
-   } while (Etot > eventConfig->EtotMax);
+   } while (Etot > aEnergy);
    delete singleEnergyDistr;
    //return Etot;
 }
@@ -521,31 +523,28 @@ void CALM::SaveAllParticles_MINIJETS_REGGAE(vector<double> *masses, vector<strin
 
 CALM::CALM() : mRandom(0), mNames(0), mNmean(0)
 {
-   //FILIPS: tutaj odpalamy Configurator który wczytuje dane a następnie ładujemy je do ConfigurationHolder, który jest polem klasy CALM więc trzyma dane przez cały czas działąnia programu
    Configurator *newConfig = new Configurator("./config.ini");
    newConfig->ReadParameters();
    eventConfig = new ConfigurationHolder(newConfig);
 
    mRandom = new TRandom2(0);
+
+   //constants
    mNpart = 4; //particle types (pions, kaons, protons, lambdas)
-   //double Nmean[] = {8.94, 1.1, 0.648, 0.19};
-   //double Nmean[] = {1.493, 0.183, 0.083, 0.048}; //charged particle yields per rapidity unit from 900 GeV data from http://arxiv.org/pdf/1504.00024v1.pdf (ALICE), lambdas from http://arxiv.org/pdf/1012.3257v2.pdf (ALICE)
-   //double RapidityInterval = 5;                   //rapidity <-2.5;2.5>
-   //double XYZ[] = {5., 5., 5.};
-   int Npartkinds[] = {3, 4, 4, 2};
+
+   int Npartkinds[] = {3, 4, 4, 2}; //Look at Names below
    string Names[] = {
        "pi0139plu", "pi0139min", "pi0135zer",
        "Ka0492plu", "Ka0492min", "Ka0492zer", "Ka0492zrb",
        "pr0938plu", "pr0938plb", "ne0939zer", "ne0939zrb",
        "Lm1115zer", "Lm1115zrb"};
+
+
    int it = 0;
-   mNmean = eventConfig->Nmean; //new double[mNpart];
    mNpartkinds = new int[mNpart];
    mNames = new string *[mNpart];
-   mRapidityInterval = eventConfig->RapidityInterval; //RapidityInterval;
    for (int i = 0; i < mNpart; i++)
    {
-      //mNmean[i] = Nmean[i];
       mNpartkinds[i] = Npartkinds[i];
       mNames[i] = new string[Npartkinds[i]];
       for (int j = 0; j < Npartkinds[i]; j++)
@@ -555,16 +554,17 @@ CALM::CALM() : mRandom(0), mNames(0), mNmean(0)
          it++;
       }
    }
-   mXYZ = eventConfig->XYZ; //new double[3];
 
+   //reading configuration
+   mNmean = eventConfig->Nmean; //charged particle yields per rapidity unit
+   mRapidityInterval = eventConfig->RapidityInterval;
+   mXYZ = eventConfig->XYZ;
    if(eventConfig->pythiaMult==1){
       GetMultiplicitiesOfPartciles = &CALM::PythiaMult;
    }
    else{
       GetMultiplicitiesOfPartciles = &CALM::AlicePoissonMult;
    }
-   /*for (int i = 0; i < 3; i++)
-      mXYZ[i] = XYZ[i];*/
 }
 CALM::~CALM()
 {
@@ -573,20 +573,18 @@ CALM::~CALM()
 
 int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMax, double aEnergy, list<Particle> *aParticles, eEventType aEventType)
 {
-   // number of particles generated (for each kind) - from Poisson distribution
-   int *Nrand;
+   int *Nrand; // multiplicities for each kind
 
-   int** Npart;// = new int*[mNpart];
-   //for(int i = 0; i < mNpart; i++)
-   //   Npart[i] = new int[aMultBinMax];
-   //vector<vector<int>> Npart(mNpart, vector<int>(aMultBinMax)); //int Npart[mNpart][aMultBinMax]; // particle to be generated
+   int** Npart; // particle to be generated
    
-   int Nsum;
-   //_______distributing the total number of particles for each kind and for the specific particles
-   //_______GLOBAL CONSERVATION LAWS - or one minijet for minijets with local conservation
+   int Nsum; // number of particles generated
 
+   double **XYZrand; // vertex locations
+
+   //_______distributing the total number of particles for each kind and for the specific particles
    Nrand = (this->*GetMultiplicitiesOfPartciles)(aMultBinMin, aMultBinMax, Nsum);
 
+   //_______randomization type for particle with GLOBAL conservation
    Npart = GetTypesForParticles(Nrand, aPartDB);
 
    //________rewriting the particles into one list
@@ -599,10 +597,10 @@ int CALM::GenerateParticles(ParticleDB *aPartDB, int aMultBinMin, int aMultBinMa
    }
 
    //________XYZ generating
-   double **XYZrand = GetXYZ(Nsum);
+   XYZrand = GetVertexXYZ(Nsum);
 
    //________Energy generating
-   SetTotalEnergy(Nsum);
+   SetTotalEnergy(Nsum, aEnergy);
 
    //________Genbod part
    // generate total momentum for given energy

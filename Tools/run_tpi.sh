@@ -20,4 +20,4 @@ else
 fi
 #cp $tpi_path"outfilecf202a.root" ./
 
-echo "outputfile copied"
+#echo "outputfile copied"
