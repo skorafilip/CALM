@@ -1,43 +1,36 @@
 #!/bin/bash
+cp events.ini events.ini.bak
+cores=4
 
 #0.setting amount of events to generate
-let amount=$2/4
-sed -i "32 s/.*/NumberOfEvents = $amount/" events.ini
-sed -i "83 s/.*/EventType = $1/" events.ini
+let amount=$2/$cores
+sed -i "s,^EventType =.*$,EventType = $1," events.ini
+sed -i "s,^NumberOfEvents =.*$,NumberOfEvents = $amount," events.ini
 
 #1.making name and directiories for each process
-
-#EventDir="eventsReggae_minijets_10_20_newTotalMom"
-dirname="events_EventType$1"
-EventDir=$dirname
+EventDir=$(awk -F "=" '/EventDir/ {print $2}' events.ini)
 mkdir $EventDir
-EventDir=$EventDir"/"
-#77min 79max 83eventtype
 
 
-for i in {0..3}
+for i in $( seq 1 $cores )
 do
-declare calm${i}dir="${EventDir}calm${i}dir"
+declare calm${i}dir="${EventDir}calm${i}"
 eval "mkdir \${calm${i}dir}"
 
 done
 
 
 #2.change directiory and run CALM
-n="67"
-#line="EventDir = eventsReggae_minijets_10_20_newTotalMom"
-line="EventDir = $dirname"
-
-for i in {0..3}
+for i in $( seq 1 $cores )
 do
 
-sed -i "$n s/.*/$line\/calm${i}dir\//" events.ini
+eval "sed -i \"s,^EventDir =.*$,EventDir = \${calm${i}dir},\" events.ini"
+
 gnome-terminal -- ./calm
 sleep 1s
 
 done
 
 sleep 5s
-sed -i "$n s/.*/EventDir = eventsReggae_minijets_10_20_newTotalMom//" events.ini
-
-
+cp events.ini.bak events.ini
+rm events.ini.bak
