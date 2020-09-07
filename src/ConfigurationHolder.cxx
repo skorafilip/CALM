@@ -18,7 +18,7 @@ vector<string> ConfigurationHolder::SplitString(string strarray, char token){
 
 
 ConfigurationHolder::ConfigurationHolder()
-: Nmean(new double[4]{1.493,0.183,0.083,0.048}), RapidityInterval(5), XYZ(new double[3]{5.,5.,5.}), pythiaMult(0),
+: Nmean(new double[4]{1.493,0.183,0.083,0.048}), RapidityInterval(5), XYZ(new double[3]{5.,5.,5.}), customMult(0),
   pionsMultDistr("0.334508*TMath::Gaus(x,56.8221,23.5326)*(5.97354e-07*x*x*x-8.88401e-05*x*x+0.00434252*x-0.0274243)"), pionsMultDistr_xMin(8), pionsMultDistr_xMax(150),
   kaonsMultDistr("0.731705*TMath::Gaus(x,15.5239,8.95871)*(1.1963e-05*x*x*x-0.000584791*x*x+0.010377*x-0.00451733)"), kaonsMultDistr_xMin(1), kaonsMultDistr_xMax(50),
   nucleonsMultDistr("1.37498*TMath::Gaus(x,8.86527,6.11529)*(2.80839e-05*x*x*x-0.00103983*x*x+0.0134321*x-0.0026861)"), nucleonsMultDistr_xMin(1), nucleonsMultDistr_xMax(50),
@@ -62,9 +62,9 @@ ConfigurationHolder::ConfigurationHolder(Configurator *config){
           stod(vXYZ[2])
       };
 
-      pythiaMult = config->GetParameter("pythiaMult").Atoi();
-      if(pythiaMult == 1)
-        PRINT_MESSAGE("["<<tDate.AsSQLString()<<"]\tUsing Pythia particle distribution functions");
+      customMult = config->GetParameter("customMult").Atoi();
+      if(customMult == 1)
+        PRINT_MESSAGE("["<<tDate.AsSQLString()<<"]\tUsing custom particle distribution functions");
 
       pionsMultDistr = config->GetParameter("pionsMultDistr");
       pionsMultDistr_xMin = stod(config->GetParameter("pionsMultDistr_xMin").Data());

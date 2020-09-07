@@ -47,20 +47,20 @@ private:
 	double *mXYZ;			  ///< To generate distance from primary vertex
 	int *mNpartkinds;		  ///< Number of particles for each kind
 	string **mNames;		  ///< Names of particles to be generated
-	TF1 *singleEnergyDistr;	  ///< Energy distribution of single particle -> taken from Pythia
-	TF1 *pionsMultDistr;	  ///< Pythia distribution function for pions
-	TF1 *kaonsMultDistr;      ///< Pythia distribution function for kaons
-	TF1 *nucleonsMultDistr;   ///< Pythia distribution function for nucleons
-	TF1 *lambdasMultDistr;    ///< Pythia distribution function for lambdas
+	TF1 *singleEnergyDistr;	  ///< Energy distribution of single particle
+	TF1 *pionsMultDistr;	  ///< Custom distribution function for pions
+	TF1 *kaonsMultDistr;      ///< Custom distribution function for kaons
+	TF1 *nucleonsMultDistr;   ///< Custom distribution function for nucleons
+	TF1 *lambdasMultDistr;    ///< Custom distribution function for lambdas
 	double Etot; 			  ///< Total momentum to be distributed among particles
 	// values for this event
 	vector<string> mParticlesThisEvent; ///< List of particle names for one event
 	ConfigurationHolder* eventConfig; ///< ConfigurationHolder with parameters from file
-	int *(CALM::*GetMultiplicitiesOfPartciles)(int, int, int &); ///< Pointer to the function generating amount of particles: PythiaMult or AlicePoissonMult
+	int *(CALM::*GetMultiplicitiesOfPartciles)(int, int, int &); ///< Pointer to the function generating amount of particles: CustomMult or AlicePoissonMult
 
 private:
 	//one of these methods have to be assaigned into GetMultiplicitiesOfPartciles pointer
-	int *PythiaMult(int aMultBinMin, int aMultBinMax, int &Nsum);
+	int *CustomMult(int aMultBinMin, int aMultBinMax, int &Nsum);
 	int *AlicePoissonMult(int aMultBinMin, int aMultBinMax, int &Nsum);
 
 	int **GetTypesForParticles(int *Nrand, ParticleDB *aPartDB);
@@ -120,8 +120,8 @@ private:
  * 
  * 
  * 
- * @fn int *CALM::PythiaMult(int aMultBinMin, int aMultBinMax, int &Nsum)
- * @brief Randomize multiciplity, from Pythia distributions, of each kind (pion, etc.) for event and returnes pointer to array of them
+ * @fn int *CALM::CustomMult(int aMultBinMin, int aMultBinMax, int &Nsum)
+ * @brief Randomize multiciplity, from custom distributions, of each kind (pion, etc.) for event and returnes pointer to array of them
  * @param [in] aMultBinMin minimum multiplicity of event
  * @param [in] aMultBinMax maxiumum multiplicity of event
  * @param [out] Nsum reference to the variable holding amount of particles within event

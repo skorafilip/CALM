@@ -27,11 +27,10 @@ void AddParticleSums(int &Qsum, int &Ssum, int &Bsum, string particleName, Parti
 }
 
 
-int *CALM::PythiaMult(int aMultBinMin, int aMultBinMax, int &Nsum)
+int *CALM::CustomMult(int aMultBinMin, int aMultBinMax, int &Nsum)
 {
    // number of particles generated (for each kind) - from Pytia distribution
    int *Nrand = new int[mNpart];
-   int pythiaMult = eventConfig->pythiaMult;
 
    pionsMultDistr = new TF1("pionsMultDistr", eventConfig->pionsMultDistr.c_str(), eventConfig->pionsMultDistr_xMin, eventConfig->pionsMultDistr_xMax);
    kaonsMultDistr = new TF1("kaonsMultDistr", eventConfig->kaonsMultDistr.c_str(), eventConfig->kaonsMultDistr_xMin, eventConfig->kaonsMultDistr_xMax);
@@ -59,7 +58,6 @@ int *CALM::AlicePoissonMult(int aMultBinMin, int aMultBinMax, int &Nsum)
 {
    // number of particles generated (for each kind) - from Poisson distribution
    int *Nrand = new int[mNpart];
-   int pythiaMult = eventConfig->pythiaMult;
 
    do
    {
@@ -559,8 +557,8 @@ CALM::CALM() : mRandom(0), mNames(0), mNmean(0)
    mNmean = eventConfig->Nmean; //charged particle yields per rapidity unit
    mRapidityInterval = eventConfig->RapidityInterval;
    mXYZ = eventConfig->XYZ;
-   if(eventConfig->pythiaMult==1){
-      GetMultiplicitiesOfPartciles = &CALM::PythiaMult;
+   if(eventConfig->customMult==1){
+      GetMultiplicitiesOfPartciles = &CALM::CustomMult;
    }
    else{
       GetMultiplicitiesOfPartciles = &CALM::AlicePoissonMult;
