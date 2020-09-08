@@ -1,9 +1,9 @@
 #!/bin/bash
 cp events.ini events.ini.bak
-cores=4
+NumberOfCores=4
 
 #0.setting amount of events to generate
-let amount=$2/$cores
+let amount=$2/$NumberOfCores
 sed -i "s,^EventType =.*$,EventType = $1," events.ini
 sed -i "s,^NumberOfEvents =.*$,NumberOfEvents = $amount," events.ini
 
@@ -12,16 +12,16 @@ EventDir=$(awk -F "=" '/EventDir/ {print $2}' events.ini)
 mkdir $EventDir
 
 
-for i in $( seq 1 $cores )
+for i in $( seq 1 $NumberOfCores )
 do
-declare calm${i}dir="${EventDir}calm${i}"
+declare calm${i}dir="${EventDir}calm${i}/"
 eval "mkdir \${calm${i}dir}"
 
 done
 
 
 #2.change directiory and run CALM
-for i in $( seq 1 $cores )
+for i in $( seq 1 $NumberOfCores )
 do
 
 eval "sed -i \"s,^EventDir =.*$,EventDir = \${calm${i}dir},\" events.ini"

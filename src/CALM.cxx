@@ -305,12 +305,18 @@ bool CALM::FilterUnlikelyEvents_MINIJETS(TGenPhaseSpace &event0, TGenPhaseSpace 
 bool CALM::ReggaeNegativeEnergyCheck(int Nsum, double *masses, vector4 en, vector4 *avec)
 {
    long int seed = time(NULL);
+   
+   double tmp_masses[Nsum];
+   for (int j = 0; j < Nsum; ++j)
+   {
+      tmp_masses[j] = masses[j];
+   }
 
    bool checkE = true; //isSuccess; check negative energy
    int control = 0;
    do
    {
-      Mconserv(en, Nsum, masses, avec, &seed); //genbod algoritmus
+      Mconserv(en, Nsum, tmp_masses, avec, &seed); //genbod algoritmus
       collision(Nsum, avec, &seed);            //collision algoritmus
       checkE = true;
 

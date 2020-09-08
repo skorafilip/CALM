@@ -156,9 +156,8 @@ void MessageIntro()
   PRINT_MESSAGE("  ***********************************************************************"	);
   PRINT_MESSAGE("  *\t\tCALM 2 version "<<_CALM_VERSION_<<"\t\t\t*"	);
   PRINT_MESSAGE("  *\t\t\t\t\t\t\t\t\t*"							);
-  PRINT_MESSAGE("  * authors: M.Chojnacki, A.Kisiel, W.Florkowski, W.Broniowski\t\t*"		);
-  PRINT_MESSAGE("  * cite as: arXiv:1102.0273\t\t\t\t\t\t*"					);
-  PRINT_MESSAGE("  * webpage: http://therminator2.ifj.edu.pl/\t\t\t\t*"				);
+  PRINT_MESSAGE("  * authors: M.A.Janik, A.Zaborowska, P.Modzelewski, F.Skóra\t\t*"		);
+  PRINT_MESSAGE("  * webpage: https://github.com/skorafilip/CALM\t\t\t\t*"				);
   PRINT_MESSAGE("  ***********************************************************************"	);
 }
 

@@ -24,7 +24,7 @@ ConfigurationHolder::ConfigurationHolder()
   nucleonsMultDistr("1.37498*TMath::Gaus(x,8.86527,6.11529)*(2.80839e-05*x*x*x-0.00103983*x*x+0.0134321*x-0.0026861)"), nucleonsMultDistr_xMin(1), nucleonsMultDistr_xMax(50),
   lambdasMultDistr("3.21961*TMath::Gaus(x,1.14316,1.58606)*(0.00221997*x*x*x-0.0125258*x*x+0.00457262*x+0.118927)"), lambdasMultDistr_xMin(0), lambdasMultDistr_xMax(15),
   singleEnergyDistr("0.922477*(TMath::Power(x+2.15717,-1.57383)-1.40499e-05)"), singleEnergyDistr_xMin(0.4), singleEnergyDistr_xMax(1100),
-  /*EtotMax(7000),*/ divideEn(new double[2]{1,1})
+  divideEn(new double[2]{1,1})
 {
     TDatime tDate;
     
@@ -36,7 +36,7 @@ ConfigurationHolder::ConfigurationHolder(Configurator *config){
     TDatime tDate;
     
     tDate.Set();
-    PRINT_MESSAGE("["<<tDate.AsSQLString()<<"]\tLodaing configuration");
+    PRINT_MESSAGE("["<<tDate.AsSQLString()<<"]\tLoading configuration");
 
     try{
       string s = config->GetParameter("Nmean").Data();
@@ -87,7 +87,6 @@ ConfigurationHolder::ConfigurationHolder(Configurator *config){
       singleEnergyDistr_xMin = stod(config->GetParameter("singleEnergyDistr_xMin").Data());
       singleEnergyDistr_xMax = stod(config->GetParameter("singleEnergyDistr_xMax").Data());
 
-      //EtotMax = config->GetParameter("EtotMax").Atoi();
       
       vector<string> vdivideEn = SplitString(config->GetParameter("divideEn").Data(), ',');
       if(vdivideEn.size()!=2){
