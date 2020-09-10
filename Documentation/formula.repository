@@ -1,0 +1,16 @@
+\_form#0=429x14:\[ X^{32} + X^{26} + X^{23} + X^{22} + X^{16} + X^{12} + X^{11} + X^{10} + X^8 + X^7 + X^5 + X^4 + X^2 + X + 1 \]
+\_form#1=43x15:$ \beta_z = \frac{v_z}{c} $
+\_form#2=8x13:$ \phi $
+\_form#3=46x15:$ \beta_T = \frac{v_T}{c} $
+\_form#4=13x6:$ m $
+\_form#5=5x9:$ t $
+\_form#6=8x6:$ x $
+\_form#7=8x9:$ y $
+\_form#8=6x6:$ z $
+\_form#9=10x9:$ E $
+\_form#10=13x9:$ p_x $
+\_form#11=13x10:$ p_y $
+\_form#12=13x9:$ p_z $
+\_form#13=29x16:$ \left(2 \pi\right)^3 $
+\_form#14=29x16:$ \left(2 \pi\right)^2 $
+\_form#15=13x10:$ \hbar c $
