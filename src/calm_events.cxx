@@ -154,7 +154,7 @@ void ReadSHARE(ParticleDB* aPartDB)
 void MessageIntro()
 {
   PRINT_MESSAGE("  ***********************************************************************"	);
-  PRINT_MESSAGE("  *\t\tCALM 2 version "<<_CALM_VERSION_<<"\t\t\t*"	);
+  PRINT_MESSAGE("  *\t\tCALM 2 version "<<_CALM_VERSION_<<"\t\t\t\t*"	);
   PRINT_MESSAGE("  *\t\t\t\t\t\t\t\t\t*"							);
   PRINT_MESSAGE("  * authors: M.A.Janik, A.Zaborowska, P.Modzelewski, F.Skóra\t\t*"		);
   PRINT_MESSAGE("  * webpage: https://github.com/skorafilip/CALM\t\t\t\t*"				);

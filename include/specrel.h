@@ -151,3 +151,26 @@ double SR_redK2(double);
 double sum (int index, int op, double *massl);
 
 #endif
+
+/*! @file specrel.h
+ */
+/*! @class tensor4
+ * @brief Two-dimensional array of size 4x4.
+ * 
+ */
+/*! @class tensor3
+ * @brief Two-dimensional array of size 3x3.
+ * 
+ */
+/*! @class vector4
+ * @brief One-dimensional array of size 4.
+ * 
+ */
+/*! @class vector3
+ * @brief One-dimensional array of size 3.
+ * 
+ */
+/*! @class ParticleReg
+ * @brief Class for defining particles.
+ * 
+ */

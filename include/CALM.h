@@ -148,7 +148,7 @@ private:
  * 
  * 
  * 
- * @fn double CALM::GetTotalEnergy(int Nsum, double aEnergy)
+ * @fn double CALM::SetTotalEnergy(int Nsum, double aEnergy)
  * @brief Generates energy for each particle (from eventConfig->singleEnergyDistr distribuation) and checks if the sum is not bigger then maximum energy
  * @param [in] Nsum amount of all particles
  * @param [in] aEnergy maximum energy of event

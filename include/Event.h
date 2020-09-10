@@ -71,3 +71,12 @@ class Event {
 };
 
 #endif
+
+
+/*! @file Event.h
+ * @brief Definition of Event class. Generates particles and passes them to the EventGenerator.
+ */
+/*! @class Event
+ * @brief Runs CALM which generates number of particles.
+ * 
+ */
