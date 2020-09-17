@@ -33,6 +33,7 @@
 #include "Configurator.h"
 #include "StructEvent.h"
 #include "THGlobal.h"
+#include "TSystem.h"
 
 extern void AddLogEntry(const char* aEntry);
 
@@ -271,6 +272,13 @@ void EventGenerator::ReadParameters()
     PRINT_MESSAGE("\tDid not find one of the necessary parameters in the parameters file.");
     exit(_ERROR_CONFIG_PARAMETER_NOT_FOUND_);
   }
+	if (gSystem->AccessPathName(sEventDIR.Data()))
+	{
+    PRINT_MESSAGE("<EventGenerator::ReadParameters>\tCaught exception " << sEventDIR.Data());
+    PRINT_MESSAGE("\tDirectory does not exist." );
+		exit(_ERROR_GENERAL_FILE_NOT_FOUND_);;
+	}
+
   if (tExportType == "root")		mEventExportType = 0;
   else if (tExportType == "text")	mEventExportType = 1;
   else if (tExportType == "root&text")	mEventExportType = 2;
