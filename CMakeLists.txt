@@ -30,7 +30,10 @@ target_link_libraries(calm ${ROOT_LIBRARIES})
 #
 set(CALM_SCRIPTS
     share/particles.data
-    events.ini)
+    events.ini
+    config.ini
+    run_CALM.sh
+    Doxyfile)
 foreach(_script ${CALM_SCRIPTS})
   configure_file(
     ${PROJECT_SOURCE_DIR}/${_script}
@@ -38,6 +41,11 @@ foreach(_script ${CALM_SCRIPTS})
     COPYONLY
     )
 endforeach()
+
+#----------------------------------------------------------------------------
+# Makeing events directory
+#
+make_directory(events)
 
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
