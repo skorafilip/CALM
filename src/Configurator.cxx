@@ -1,3 +1,5 @@
+/*This code is based on the code from THERMINATOR 2 generator, see details below*/
+
 /********************************************************************************
  *                                                                              *
  *             THERMINATOR 2: THERMal heavy-IoN generATOR 2                     *

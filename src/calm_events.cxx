@@ -1,3 +1,4 @@
+/*This code is based on the code from THERMINATOR 2 generator, see details below*/
 /********************************************************************************
  *                                                                              *
  *                      CALM: ConservAtion Laws Model                           *
