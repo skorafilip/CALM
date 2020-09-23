@@ -35,10 +35,10 @@ Installation:
       
 Capabilities
 ------------------------------
-CALM simulates proton-proton collisions and saves their results into files.It produces 13 types of hadrons, we can distinguish them into 4 kinds:
+CALM simulates proton-proton collisions and saves their results into files. It produces 13 types of hadrons, we can distinguish them into 4 kinds:
    1. Pions (π<sup>+</sup>, π<sup>0</sup>, π<sup>-</sup>)
-   2. Kaons (K<sup>+</sup>, K<sup>0</sup>, AK , K<sup>-</sup>)
-   3. Nukleons (p, Ap, n, An)
+   2. Kaons (K<sup>+</sup>, K<sup>0</sup>, anti-K<sup>0</sup> , K<sup>-</sup>)
+   3. Nukleons (p, anti-p, n, anti-n)
    4. Lambdas (Λ, AΛ)
 
 Below you can see exemple distribution of multiplicity of all particles types in one event:
