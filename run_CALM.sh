@@ -1,10 +1,10 @@
 #!/bin/bash
 #args: EventType, NumberOfEvents
 cp events.ini events.ini.bak
-cores=4
+NumberOfCores=4
 
 #0.setting amount of events to generate
-let amount=$2/$cores
+let amount=$2/$NumberOfCores
 sed -i "s,^EventType =.*$,EventType = $1," events.ini
 sed -i "s,^NumberOfEvents =.*$,NumberOfEvents = $amount," events.ini
 
@@ -28,7 +28,7 @@ eval "sed -i \"s,^EventDir =.*$,EventDir = \${calm${1}dir},\" events.ini"
 
 declare command="CALM 1"
 
-for i in $( seq 2 $cores )
+for i in $( seq 2 $NumberOfCores )
 do
 command="${command} & CALM $i"
 
