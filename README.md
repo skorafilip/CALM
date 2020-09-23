@@ -39,7 +39,7 @@ CALM simulates proton-proton collisions and saves their results into files. It p
    1. Pions (π<sup>+</sup>, π<sup>0</sup>, π<sup>-</sup>)
    2. Kaons (K<sup>+</sup>, K<sup>0</sup>, anti-K<sup>0</sup> , K<sup>-</sup>)
    3. Nukleons (p, anti-p, n, anti-n)
-   4. Lambdas (Λ, AΛ)
+   4. Lambdas (Λ, anti-Λ)
 
 Below you can see exemple distribution of multiplicity of all particles types in one event:
 ![MultPID](https://raw.githubusercontent.com/skorafilip/CALM/master/images/GLOBAL_REGGAE_hevmultPIDPipPip.png)
